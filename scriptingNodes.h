@@ -20,6 +20,7 @@ using namespace std;
 
 #include <vector>
 #include <memory>
+#include <string>
 
 class Visitor;
 class constVisitor;
