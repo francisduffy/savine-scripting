@@ -15,8 +15,8 @@ As long as this comment is preserved at the top of the file
 */
 
 #include <windows.h>
-#include "xlcall.h"
-#include "framework.h"
+#include <xlcall.h>
+#include <framewrk.h>
 
 //	Additional xl utilities, useful for ranges of strings
 #include "xlOper12.h"

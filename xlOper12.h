@@ -1,7 +1,7 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "xlcall.h"
+#include <xlcall.h>
 #include <string>
 
 #include <limits>
