@@ -13,7 +13,8 @@ Wiley, 2018
 
 As long as this comment is preserved at the top of the file
 */
-
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <xlcall.h>
 #include <framewrk.h>
