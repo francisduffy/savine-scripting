@@ -16,16 +16,16 @@ As long as this comment is preserved at the top of the file
 
 #pragma once
 
-#include "scriptingNodes.h"
-#include "scriptingParser.h"
-#include "scriptingVisitor.h"
-#include "scriptingVarIndexer.h"
-#include "scriptingDebugger.h"
-#include "scriptingEvaluator.h"
-#include "scriptingFuzzyEval.h"
-#include "scriptingScenarios.h"
-#include "scriptingDomainProc.h"
-#include "scriptingConstCondProc.h"
+#include "Nodes.h"
+#include "Parser.h"
+#include "Visitor.h"
+#include "VarIndexer.h"
+#include "Debugger.h"
+#include "Evaluator.h"
+#include "FuzzyEval.h"
+#include "Scenarios.h"
+#include "DomainProc.h"
+#include "ConstCondProc.h"
 
 using namespace std;
 #include <vector>

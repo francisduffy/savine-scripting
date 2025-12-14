@@ -16,11 +16,11 @@ As long as this comment is preserved at the top of the file
 
 #pragma once
 
-#include "scriptingScenarios.h"
-#include "scriptingEvents.h"
-#include "scriptingFuzzyEval.h"
+#include "Scenarios.h"
+#include "Events.h"
+#include "FuzzyEval.h"
 
-#include "cpp11basicRanGen.h"
+#include "utilities/basicRanGen.h"
 
 //  Base model for Monte-Carlo simulations
 template <class T>

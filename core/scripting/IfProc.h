@@ -27,8 +27,8 @@ As long as this comment is preserved at the top of the file
 #include <memory>
 #include <iterator>
 
-#include "scriptingVisitor.h"
-#include "quickStack.h"
+#include "Visitor.h"
+#include "utilities/quickStack.h"
 
 class IfProcessor : public Visitor
 {

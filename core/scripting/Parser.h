@@ -24,8 +24,8 @@ using namespace std;
 #include <regex>
 #include <algorithm>
 
-#include "scriptingNodes.h"
-#include "scriptingEvents.h"
+#include "Nodes.h"
+#include "Events.h"
 
 Event parse( const string& eventString);
 vector<string> tokenize( const string& str);

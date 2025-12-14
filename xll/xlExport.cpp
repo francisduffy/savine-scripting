@@ -31,11 +31,11 @@ double xMultiply2Numbers(double x, double y)
 	return x * y;
 }
 
-#include "scriptingParser.h"
-#include "scriptingDebugger.h"
-#include "scriptingEvaluator.h"
-#include "scriptingEvents.h"
-#include "scriptingModel.h"
+#include "scripting/Parser.h"
+#include "scripting/Debugger.h"
+#include "scripting/Evaluator.h"
+#include "scripting/Events.h"
+#include "scripting/Model.h"
 
 extern "C" __declspec(dllexport) XLOper12* TestScript(
 	XLOper12 *xToday,

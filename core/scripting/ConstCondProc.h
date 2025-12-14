@@ -16,7 +16,7 @@ As long as this comment is preserved at the top of the file
 
 #pragma once
 
-#include "scriptingVisitor.h"
+#include "Visitor.h"
 
 //	ConstCond processor
 //	Processes all constant (always true/false) conditions and conditional statements

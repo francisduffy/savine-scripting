@@ -18,12 +18,12 @@ As long as this comment is preserved at the top of the file
 
 #include <iostream>
 
-#include "scriptingNodes.h"
-#include "scriptingVisitor.h"
-#include "scriptingScenarios.h"
+#include "Nodes.h"
+#include "Visitor.h"
+#include "Scenarios.h"
 
 #include <vector>
-#include "quickStack.h"
+#include "utilities/quickStack.h"
 
 template <class T>
 class Evaluator : public constVisitor

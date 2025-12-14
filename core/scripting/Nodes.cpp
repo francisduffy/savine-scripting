@@ -14,8 +14,8 @@ Wiley, 2018
 As long as this comment is preserved at the top of the file
 */
 
-#include "scriptingNodes.h"
-#include "scriptingVisitor.h"
+#include "Nodes.h"
+#include "Visitor.h"
 
 //	Collection of statements
 void NodeCollect::acceptVisitor( Visitor& visitor)

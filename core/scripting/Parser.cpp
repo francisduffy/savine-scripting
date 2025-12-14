@@ -14,7 +14,7 @@ Wiley, 2018
 As long as this comment is preserved at the top of the file
 */
 
-#include "scriptingParser.h"
+#include "Parser.h"
 
 #include <regex>
 #include <algorithm>
@@ -34,7 +34,7 @@ vector<string> tokenize( const string& str)
 		//	Copy match into results
 		v.push_back( (*it)[0]);
 		//	Uppercase
-		transform( v.back().begin(), v.back().end(), v.back().begin(), toupper);
+		std::transform( v.back().begin(), v.back().end(), v.back().begin(), toupper);
 	}
 
 	//	C++11 move semantics means no copy
