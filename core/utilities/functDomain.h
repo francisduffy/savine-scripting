@@ -49,10 +49,10 @@ public:
 	static const PlusInfinity plusInfinity;
 	static const MinusInfinity minusInfinity;
 
-	//	Real
+	// Real
 	Bound( const double val = 0.0) : myPlusInf( false), myMinusInf( false), myReal( val) {}
 	
-	//	Infinite
+	// Infinite
 	Bound( const PlusInfinity) : myPlusInf( true), myMinusInf( false), myReal( BIG) {}
 	Bound( const MinusInfinity) : myPlusInf( false), myMinusInf( true), myReal( -BIG) {}
 
@@ -92,7 +92,7 @@ public:
 		return *this;
 	}
 
-	//	Accessors
+	// Accessors
 
 	bool infinite() const
 	{
@@ -129,7 +129,7 @@ public:
 		return myReal;
 	}
 
-	//	Comparison
+	// Comparison
 	
 	bool operator==( const Bound& rhs) const
 	{
@@ -161,7 +161,7 @@ public:
 		return !operator<( rhs);
 	}
 
-	//	Writers
+	// Writers
 
 	friend ostream& operator<<( ostream& ost, const Bound bnd) 
 	{
@@ -179,20 +179,20 @@ public:
 		return ost.str();
 	}
 
-	//	Multiplication
+	// Multiplication
 	Bound operator*( const Bound& rhs) const
 	{
 		if( infinite() || rhs.infinite())
 		{
 			if( positive( true) && rhs.positive( true) || negative( true) && rhs.negative( true)) return plusInfinity;
-			else if( zero()) return rhs;			//	Here 0 * inf = inf
-			else if( rhs.zero()) return *this;		//	Same
+			else if( zero()) return rhs;			// Here 0 * inf = inf
+			else if( rhs.zero()) return *this;		// Same
 			else return minusInfinity;
 		}
 		else return myReal * rhs.myReal;
 	}
 
-	//	Negation
+	// Negation
 	Bound operator-() const
 	{
 		if( myMinusInf) return plusInfinity;
@@ -208,10 +208,10 @@ class Interval
 
 public:
 
-	//	Singleton
+	// Singleton
 	Interval( const double val = 0.0) : myLeft( val), myRight( val) {}
 	
-	//	Interval
+	// Interval
 	Interval( const Bound& left, const Bound& right) : myLeft( left), myRight( right)
 	{
 //#ifdef _DEBUG
@@ -220,7 +220,7 @@ public:
 //#endif
 	}
 
-	//	Accessors
+	// Accessors
 
 	Bound left() const
 	{
@@ -272,7 +272,7 @@ public:
 		return !singleton();
 	}
 
-	//	Writers
+	// Writers
 
 	friend ostream& operator<<( ostream& ost, const Interval i) 
 	{
@@ -296,7 +296,7 @@ public:
 		return ost.str();
 	}
 
-	//	Sorting
+	// Sorting
 
 	bool operator==( const Interval& rhs) const
 	{
@@ -323,9 +323,9 @@ public:
 		return !operator<( rhs);
 	}
 
-	//	Arithmetics
+	// Arithmetics
 
-	//	Addition
+	// Addition
 	Interval operator+( const Interval& rhs) const
 	{
 		Bound lb, rb;
@@ -345,13 +345,13 @@ public:
 		return *this;
 	}
 
-	//	Unary minus
+	// Unary minus
 	Interval operator-() const
 	{
 		return Interval( -myRight, -myLeft);
 	}
 
-	//	Subtraction
+	// Subtraction
 	Interval operator-( const Interval& rhs) const
 	{
 		return *this + -rhs;
@@ -363,14 +363,14 @@ public:
 		return *this;
 	}
 
-	//	Multiplication
+	// Multiplication
 
 	Interval operator*( const Interval& rhs) const
 	{
-		//	If we have a zero singleton, the result is a zero singleton
+		// If we have a zero singleton, the result is a zero singleton
 		if( zero() || rhs.zero()) return 0.0;
 
-		//	Otherwise we multiply the bounds and go from smallest to largest
+		// Otherwise we multiply the bounds and go from smallest to largest
 		array<Bound, 4> b;
 		b[0] = myRight * rhs.myRight;
 		b[1] = myRight * rhs.myLeft;
@@ -380,19 +380,19 @@ public:
 		return Interval( *min_element( b.begin(), b.end()), *max_element( b.begin(), b.end()));
 	}
 
-	//	Inverse (1/x)
+	// Inverse (1/x)
 	Interval inverse() const
 	{
 		double v;
 
-		//	Cannot inverse a zero singleton
+		// Cannot inverse a zero singleton
 		if( zero()) throw runtime_error( "Division by {0}");
 		
-		//	Singleton
+		// Singleton
 		else if( singleton( &v)) return 1.0 / v;
 
-		//	Continuous
-		else if( posOrNeg( true)) //	Strict, no 0
+		// Continuous
+		else if( posOrNeg( true)) // Strict, no 0
 		{
 			if( infinite()) 
 			{
@@ -401,7 +401,7 @@ public:
 			}
 			return Interval( 1.0 / myRight.val(), 1.0 / myLeft.val());
 		}
-		else if( myLeft.zero() || myRight.zero())	//	One of the bounds is 0
+		else if( myLeft.zero() || myRight.zero())	// One of the bounds is 0
 		{
 			if( infinite()) 
 			{
@@ -414,17 +414,17 @@ public:
 				else return Interval( Bound::minusInfinity, 1.0 / myLeft.val());
 			}
 		}
-		//	Interval contains 0 and 0 is not a bound: inverse spans real space
+		// Interval contains 0 and 0 is not a bound: inverse spans real space
 		else return Interval( Bound::minusInfinity, Bound::plusInfinity);
 	}
 
-	//	Division
+	// Division
 	Interval operator/( const Interval& rhs) const
 	{
 		return *this * rhs.inverse();
 	}
 
-	//	Min/Max
+	// Min/Max
 	Interval imin( const Interval& rhs) const
 	{
 		Bound lb = myLeft;
@@ -446,16 +446,16 @@ public:
 		return Interval( lb, rb);
 	}
 
-	//	Apply function
+	// Apply function
 	template<class Func>
 	Interval applyFunc( const Func func, const Interval& funcDomain)
 	{
 		double val;
 
-		//	Continuous interval, we know nothing of the function, so we just apply the function domain
+		// Continuous interval, we know nothing of the function, so we just apply the function domain
 		if( !singleton( &val)) return funcDomain;
 
-		//	Singleton, we apply the function to find the target singleton
+		// Singleton, we apply the function to find the target singleton
 		else 
 		{
 			try
@@ -471,16 +471,16 @@ public:
 		return val;
 	}
 
-	//	Apply function 2 params
+	// Apply function 2 params
 	template<class Func>
 	Interval applyFunc2( const Func func, const Interval& rhs, const Interval& funcDomain)
 	{
 		double val, val2;
 
-		//	Continuous interval, we know nothing of the function, so we just apply the function domain
+		// Continuous interval, we know nothing of the function, so we just apply the function domain
 		if( !singleton( &val) || !rhs.singleton( &val2) ) return funcDomain;
 
-		//	Singleton, we apply the function to find the target singleton
+		// Singleton, we apply the function to find the target singleton
 		else 
 		{
 			try
@@ -496,7 +496,7 @@ public:
 		return val;
 	}
 
-	//	Inclusion
+	// Inclusion
 	bool includes( const double x) const
 	{
 		return myLeft <= x && myRight >= x;
@@ -512,10 +512,10 @@ public:
 		return myLeft >= rhs.myLeft && myRight <= rhs.myRight;
 	}
 
-	//	Adjacence
-	//	0: is not adjacent
-	//	1: *this is adjacent to rhs on the left of rhs
-	//	2: *this is adjacent to rhs on the right of rhs
+	// Adjacence
+	// 0: is not adjacent
+	// 1: *this is adjacent to rhs on the left of rhs
+	// 2: *this is adjacent to rhs on the right of rhs
 	unsigned isAdjacent( const Interval& rhs) const
 	{
 		if( myRight == rhs.myLeft) return 1;
@@ -523,8 +523,8 @@ public:
 		else return 0;
 	}
 
-	//	Intersection, returns false if no intersect, true otherwise
-	//		in which case iSect is set to the intersection unless nullptr
+	// Intersection, returns false if no intersect, true otherwise
+	// in which case iSect is set to the intersection unless nullptr
 	friend bool intersect( const Interval& lhs, const Interval& rhs, Interval* iSect = nullptr) 
 	{
 		Bound lb = lhs.myLeft;
@@ -546,8 +546,8 @@ public:
 		else return false;
 	}
 
-	//	Merge, returns false if no intersect, true otherwise
-	//		in which case iMerge is set to the merged interval unless nullptr
+	// Merge, returns false if no intersect, true otherwise
+	// in which case iMerge is set to the merged interval unless nullptr
 	friend bool merge( const Interval& lhs, const Interval& rhs, Interval* iMerge = nullptr) 
 	{
 		if( !intersect( lhs, rhs)) return false;
@@ -567,7 +567,7 @@ public:
 		return true;
 	}
 
-	//	Another merge function that merges rhs into this, assuming we already know that they intersect
+	// Another merge function that merges rhs into this, assuming we already know that they intersect
 	void merge( const Interval& rhs)
 	{
 		if( rhs.myLeft < myLeft) myLeft = rhs.myLeft;
@@ -616,7 +616,7 @@ public:
 	{
 		while( true)
 		{
-			//	Particular case 1: domain is empty, just add the interval
+			// Particular case 1: domain is empty, just add the interval
 			const auto itb = myIntervals.begin(), ite = myIntervals.end();
 			if( itb == ite)
 			{
@@ -624,7 +624,7 @@ public:
 				return;
 			}
 
-			//	Particular case 2: interval spans real space, then domain becomes the real space
+			// Particular case 2: interval spans real space, then domain becomes the real space
 			const Bound& l = interval.left();
 			const Bound& r = interval.right();
 			if( l.minusInf() && r.plusInf())
@@ -635,57 +635,57 @@ public:
 				return;
 			}
 
-			//	General case: we insert the interval in such a way that the resulting set of intervals are all distinct
+			// General case: we insert the interval in such a way that the resulting set of intervals are all distinct
 
-			//	Find an interval in myIntervals that intersects interval, or myinterval.end() if none
+			// Find an interval in myIntervals that intersects interval, or myinterval.end() if none
 
-			//	STL implementation, nice and elegant, unfortunately poor performance
-			//	auto it = find_if( myIntervals.begin(), myIntervals.end(), [&interval] (const Interval& i) { return intersect( i, interval); });
+			// STL implementation, nice and elegant, unfortunately poor performance
+			// auto it = find_if( myIntervals.begin(), myIntervals.end(), [&interval] (const Interval& i) { return intersect( i, interval); });
 
-			//	Custom implementation, for performance, much less elegant
+			// Custom implementation, for performance, much less elegant
 			auto it = itb;
-			//	First interval is on the strict right of interval, there will be no intersection
+			// First interval is on the strict right of interval, there will be no intersection
 			if( itb->left() > r) it = ite;
 			else
 			{
-				//	Last interval in myIntervals, we know there is one
+				// Last interval in myIntervals, we know there is one
 				const Interval& last = *myIntervals.rbegin();
 
-				//	Last interval is on the strict left of interval, there will be no intersection
+				// Last interval is on the strict left of interval, there will be no intersection
 				if( last.right() < l) it = ite;
 
 				else
 				{
-					//	We may have an intersection, find it
-					it = myIntervals.lower_bound( interval);	//	Smallest myInterval >= interval, means it.left() >= l
-					if( it == ite || it->left() > r) --it;		//	Now it.left() <= l <= r
-					if( it->right() < l) it = ite;				//	it does not intersect
+					// We may have an intersection, find it
+					it = myIntervals.lower_bound( interval);	// Smallest myInterval >= interval, means it.left() >= l
+					if( it == ite || it->left() > r) --it;		// Now it.left() <= l <= r
+					if( it->right() < l) it = ite;				// it does not intersect
 				}
 			}
 
-			//	End of find an interval in myIntervals that intersects interval
-			//		it points to an interval in myIntervals that intersects interval, or ite if none
+			// End of find an interval in myIntervals that intersects interval
+			// it points to an interval in myIntervals that intersects interval, or ite if none
 
-			//	No intersection, just add the interval
+			// No intersection, just add the interval
 			if( it == ite) 
 			{
 				myIntervals.insert( interval);
 				return;
 			}
 
-			//	We have an intersection
+			// We have an intersection
 
-			//	Merge the intersecting interval from myIntervals into interval
+			// Merge the intersecting interval from myIntervals into interval
 			
-			//	We don't use the generic merge: too slow
-			//	merge( interval, *it, &interval);
-			//	Quick merge
+			// We don't use the generic merge: too slow
+			// merge( interval, *it, &interval);
+			// Quick merge
 			interval.merge( *it);
 
-			//	Remove the merged interval from set
+			// Remove the merged interval from set
 			myIntervals.erase( it);
 
-			//	Go again until we find no more intersect
+			// Go again until we find no more intersect
 		}
 	}
 
@@ -699,7 +699,7 @@ public:
 		addInterval( val);
 	}
 
-	//	Accessors
+	// Accessors
 
 	bool positive( const bool strict=false) const
 	{
@@ -730,7 +730,7 @@ public:
 		return true;
 	}
 
-	//	Discrete only is true: return empty if continuous intervals found, false: return all singletons anyway
+	// Discrete only is true: return empty if continuous intervals found, false: return all singletons anyway
 	vector<double> getSingletons( const bool discreteOnly=true) const
 	{
 		vector<double> res;
@@ -746,13 +746,13 @@ public:
 		return res;
 	}
 
-	//	At least one continuous interval
+	// At least one continuous interval
 	bool continuous() const
 	{
 		return !discrete();
 	}
 
-	//	Shortcut for 2 singletons
+	// Shortcut for 2 singletons
 	bool boolean( pair<double,double>* vals = nullptr) const
 	{
 		vector<double> s = getSingletons();
@@ -768,7 +768,7 @@ public:
 		else return false;
 	}
 
-	//	Shortcut for 1 singleton
+	// Shortcut for 1 singleton
 	bool constant( double* val = nullptr) const
 	{
 		vector<double> s = getSingletons();
@@ -780,7 +780,7 @@ public:
 		else return false;
 	}
 
-	//	Get all continuous intervals, dropping singletons
+	// Get all continuous intervals, dropping singletons
 	Domain getContinuous() const
 	{
 		Domain res;
@@ -791,7 +791,7 @@ public:
 		return res;
 	}
 
-	//	Get min and max bounds
+	// Get min and max bounds
 	Bound minBound() const
 	{
 		if( !empty()) return myIntervals.begin()->left();
@@ -813,7 +813,7 @@ public:
 		return myIntervals.size();
 	}
 
-	//	Writers
+	// Writers
 
 	friend ostream& operator<<( ostream& ost, const Domain d) 
 	{
@@ -837,7 +837,7 @@ public:
 		return ost.str();
 	}
 
-	//	Arithmetics
+	// Arithmetics
 	Domain operator+( const Domain& rhs) const
 	{
 		Domain res;
@@ -918,7 +918,7 @@ public:
 		return res;
 	}
 
-	//	Shortcuts for shifting all intervals
+	// Shortcuts for shifting all intervals
 	Domain operator+=( const double x)
 	{
 		if( fabs( x) < EPS) return *this;
@@ -941,7 +941,7 @@ public:
 		return *this;
 	}
 
-	//	Min/Max
+	// Min/Max
 	Domain dmin( const Domain& rhs) const
 	{
 		Domain res;
@@ -971,7 +971,7 @@ public:
 		return res;
 	}
 
-	//	Apply function
+	// Apply function
 	template<class Func>
 	Domain applyFunc( const Func func, const Interval& funcDomain)
 	{
@@ -981,7 +981,7 @@ public:
 
 		if( vec.empty()) return funcDomain;
 
-		//	Singletons, apply func
+		// Singletons, apply func
 		for( auto v : vec)
 		{
 			try
@@ -997,7 +997,7 @@ public:
 		return res;
 	}
 
-	//	Apply function 2 params
+	// Apply function 2 params
 	template<class Func>
 	Domain applyFunc2( const Func func, const Domain& rhs, const Interval& funcDomain)
 	{
@@ -1025,7 +1025,7 @@ public:
 		return res;
 	}
 
-	//	Inclusion
+	// Inclusion
 	bool includes( const double x) const
 	{
 		for( auto& interval : myIntervals) if( interval.includes( x)) return true;
@@ -1038,7 +1038,7 @@ public:
 		return false;
 	}
 
-	//	Useful shortcuts for fuzzying
+	// Useful shortcuts for fuzzying
 
 	bool canBeZero() const
 	{
@@ -1079,7 +1079,7 @@ public:
 		return false;
 	}
 
-	//	Smallest positive left bound if any
+	// Smallest positive left bound if any
 	bool smallestPosLb( double &res, const bool strict=false) const
 	{
 		if( myIntervals.rbegin()->left().negative( !strict)) return false;
@@ -1090,7 +1090,7 @@ public:
 		return true;
 	}
 
-	//	Biggest negative right bound if any
+	// Biggest negative right bound if any
 	bool biggestNegRb( double &res, const bool strict=false) const
 	{
 		if( myIntervals.begin()->right().positive( !strict)) return false;

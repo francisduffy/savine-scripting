@@ -45,16 +45,16 @@ using namespace std;
 
 class DomainProcessor : public Visitor
 {
-	//	Fuzzy?
+	// Fuzzy?
 	const bool				myFuzzy;
 
-	//	Domains for all variables
+	// Domains for all variables
 	vector<Domain>			myVarDomains;
 
-	//	Stack of domains for expressions
+	// Stack of domains for expressions
 	quickStack<Domain>		myDomStack;
 
-	//	Stack of always true/false properties for conditions
+	// Stack of always true/false properties for conditions
 	enum CondProp
 	{
 		alwaysTrue,
@@ -63,20 +63,20 @@ class DomainProcessor : public Visitor
 	};
 	quickStack<CondProp>	myCondStack;
 
-	//	LHS variable being visited?
+	// LHS variable being visited?
 	bool					myLhsVar;
     size_t				    myLhsVarIdx;
 
 public:
 
-	//	Domains start with the singleton 0
+	// Domains start with the singleton 0
 	DomainProcessor( const size_t nVar, const bool fuzzy) : myFuzzy( fuzzy), myVarDomains( nVar, 0.0), myLhsVar( false) {}
 
-	//	Visitors
+	// Visitors
 
-	//	Expressions
+	// Expressions
 
-	//	Binaries
+	// Binaries
 	
 	void visitAdd( NodeAdd& node) override
 	{ 
@@ -114,11 +114,11 @@ public:
 		myDomStack.push( move( res)); 
 	}
 
-	//	Unaries
+	// Unaries
 	void visitUplus( NodeUplus& node) override { visitArguments( node); }
 	void visitUminus( NodeUminus& node) override { visitArguments( node); myDomStack.top() = -myDomStack.top(); }
 
-	//	Functions
+	// Functions
 	void visitLog( NodeLog& node) override
 	{
 		visitArguments( node); 
@@ -161,27 +161,27 @@ public:
 	{
 		visitArguments( node); 
 		
-		//	Pop eps
+		// Pop eps
 		myDomStack.pop();
 
-		//	Makes no sense with non-continuous x
+		// Makes no sense with non-continuous x
 		if( myDomStack[2].discrete()) throw runtime_error( "Smooth called with discrete x");
 				
-		//	Get min and max val if neg and if pos
+		// Get min and max val if neg and if pos
 		Bound minIfNeg = myDomStack[0].minBound();
 		Bound maxIfNeg = myDomStack[0].maxBound();
 		Bound minIfPos = myDomStack[1].minBound();
 		Bound maxIfPos = myDomStack[1].maxBound();
 		Bound minB = min( minIfNeg, minIfPos), maxB = max( maxIfNeg, maxIfPos);
 
-		//	Pop
+		// Pop
 		myDomStack.pop( 3);
 
-		//	Result
+		// Result
 		myDomStack.push( Interval( minB, maxB));
 	}
 
-	//	Conditions
+	// Conditions
 	
 	void visitEqual( NodeEqual& node) override
 	{ 
@@ -189,7 +189,7 @@ public:
 	
 		Domain& dom = myDomStack.top();
 
-		//	Always true / false?
+		// Always true / false?
 		if( !dom.canBeZero())
 		{
 			node.myAlwaysTrue = false;
@@ -210,10 +210,10 @@ public:
 
 			if( myFuzzy)
 			{
-				//	Continuous or discrete?
+				// Continuous or discrete?
 				node.myDiscrete = dom.zeroIsDiscrete();
 
-				//	Discrete
+				// Discrete
 				if( node.myDiscrete)
 				{
 					bool subDomRightOfZero = dom.smallestPosLb( node.myRb, true);
@@ -225,7 +225,7 @@ public:
 			}
 		}
 
-		//	Dump domain info to file, comment when not using
+		// Dump domain info to file, comment when not using
 #ifdef DUMP
 		static int iii = 0;
 		++iii;
@@ -237,7 +237,7 @@ public:
 			if( node.myDiscrete) ofs << "Node lB, rB = " << node.myLb << "," << node.myRb << endl;
 		}
 #endif		
-		//	End of dump
+		// End of dump
 
 		myDomStack.pop();
 	}
@@ -267,7 +267,7 @@ public:
 		}
 	}
 
-	//	For visiting superior and supEqual
+	// For visiting superior and supEqual
 	template<bool strict, class NodeSup>
 	inline void visitSupT( NodeSup& node)
 	{
@@ -275,7 +275,7 @@ public:
 	
 		Domain& dom = myDomStack.top();
 
-		//	Always true / false?
+		// Always true / false?
 		if( !dom.canBePositive( strict))
 		{
 			node.myAlwaysTrue = false;
@@ -288,7 +288,7 @@ public:
 			node.myAlwaysFalse = false;
 			myCondStack.push( alwaysTrue);
 		}
-		//	Can be true or false
+		// Can be true or false
 		else
 		{
 			node.myAlwaysTrue = node.myAlwaysFalse = false;
@@ -296,20 +296,20 @@ public:
 
 			if( myFuzzy)
 			{
-				//	Continuous or discrete?
+				// Continuous or discrete?
 				node.myDiscrete = !dom.canBeZero() || dom.zeroIsDiscrete();
 
-				//	Fuzzy logic processing
+				// Fuzzy logic processing
 				if( node.myDiscrete)
 				{
-					//	Case 1: expr cannot be zero
+					// Case 1: expr cannot be zero
 					if( !dom.canBeZero())
 					{
-						//		we know we have subdomains on the left and on the right of 0
+						// we know we have subdomains on the left and on the right of 0
 						dom.smallestPosLb( node.myRb, true);
 						dom.biggestNegRb( node.myLb, true);
 					}
-					//	Case 2: {0} is a singleton
+					// Case 2: {0} is a singleton
 					else
 					{
 						if( strict)
@@ -327,7 +327,7 @@ public:
 			}
 		}
 
-		//	Dump domain info to file, comment when not using
+		// Dump domain info to file, comment when not using
 #ifdef DUMP
 		static int iii = 0;
 		++iii;
@@ -339,7 +339,7 @@ public:
 			if( node.myDiscrete) ofs << "Node lB, rB = " << node.myLb << "," << node.myRb << endl;
 		}
 #endif	
-		//	End of dump
+		// End of dump
 
 		myDomStack.pop();
 	}
@@ -407,16 +407,16 @@ public:
 		}
 	}
 	
-	//	Instructions
+	// Instructions
 	void visitIf( NodeIf& node) override
 	{
-		//	Last "if true" statement index
+		// Last "if true" statement index
         size_t lastTrueStat = node.firstElse == -1? node.arguments.size()-1: node.firstElse-1;
 
-		//	Visit condition
+		// Visit condition
 		node.arguments[0]->acceptVisitor( *this);
 
-		//	Always true/false?
+		// Always true/false?
 		CondProp cp = myCondStack.top();
 		myCondStack.pop();
 		
@@ -424,14 +424,14 @@ public:
 		{
 			node.myAlwaysTrue = true;
 			node.myAlwaysFalse = false;
-			//	Visit "if true" statements
+			// Visit "if true" statements
 			for(size_t i=1; i<=lastTrueStat; ++i) node.arguments[i]->acceptVisitor( *this);
 		}
 		else if( cp == alwaysFalse)
 		{
 			node.myAlwaysTrue = false;
 			node.myAlwaysFalse = true;
-			//	Visit "if false" statements, if any
+			// Visit "if false" statements, if any
 			if( node.firstElse != -1) 
 				for(size_t i=node.firstElse; i<node.arguments.size(); ++i) node.arguments[i]->acceptVisitor( *this);
 		}
@@ -439,83 +439,83 @@ public:
 		{
 			node.myAlwaysTrue = node.myAlwaysFalse = false;
 
-			//	Record variable domain before if statements are executed
+			// Record variable domain before if statements are executed
 			vector<Domain> domStore0( node.myAffectedVars.size());
 			for(size_t i=0; i<node.myAffectedVars.size(); ++i) domStore0[i] = myVarDomains[node.myAffectedVars[i]];
 
-			//	Execute if statements
+			// Execute if statements
 			for(size_t i=1; i<=lastTrueStat; ++i) node.arguments[i]->acceptVisitor( *this);
 
-			//	Record variable domain after if statements are executed
+			// Record variable domain after if statements are executed
 			vector<Domain> domStore1( node.myAffectedVars.size());
 			for(size_t i=0; i<node.myAffectedVars.size(); ++i) domStore1[i] = move( myVarDomains[node.myAffectedVars[i]]);
 
-			//	Reset variable domains
+			// Reset variable domains
 			for(size_t i=0; i<node.myAffectedVars.size(); ++i) myVarDomains[node.myAffectedVars[i]] = move( domStore0[i]);
 
-			//	Execute else statements if any
+			// Execute else statements if any
 			if( node.firstElse != -1) 
 				for(size_t i=node.firstElse; i<node.arguments.size(); ++i) node.arguments[i]->acceptVisitor( *this);
 
-			//	Merge domains
+			// Merge domains
 			for(size_t i=0; i<node.myAffectedVars.size(); ++i) myVarDomains[node.myAffectedVars[i]].addDomain( domStore1[i]);
 		}
 	}
 
 	void visitAssign( NodeAssign& node) override
 	{
-		//	Visit the LHS variable
+		// Visit the LHS variable
 		myLhsVar = true;
 		node.arguments[0]->acceptVisitor( *this);
 		myLhsVar = false;
 
-		//	Visit the RHS expression
+		// Visit the RHS expression
 		node.arguments[1]->acceptVisitor( *this);
 
-		//	Write RHS domain into variable
+		// Write RHS domain into variable
 		myVarDomains[myLhsVarIdx] = myDomStack.top();
 
-		//	Pop
+		// Pop
 		myDomStack.pop();
 	}
 
 	void visitPays( NodePays& node) override
 	{
-		//	Visit the LHS variable
+		// Visit the LHS variable
 		myLhsVar = true;
 		node.arguments[0]->acceptVisitor( *this);
 		myLhsVar = false;
 
-		//	Visit the RHS expression
+		// Visit the RHS expression
 		node.arguments[1]->acceptVisitor( *this);
 
-		//	Write RHS domain into variable
+		// Write RHS domain into variable
 		
-		//	Numeraire domain = (0,+inf)
+		// Numeraire domain = (0,+inf)
 		static const Domain numDomain( Interval( 0.0, Bound::plusInfinity));
 
-		//	Payment domain
+		// Payment domain
 		Domain payDomain = myDomStack.top() / numDomain;
 
-		//	Write
+		// Write
 		myVarDomains[myLhsVarIdx] = myVarDomains[myLhsVarIdx] + payDomain;
 
-		//	Pop
+		// Pop
 		myDomStack.pop();
 	}
 
-	//	Variables and constants
+	// Variables and constants
 	void visitVar( NodeVar& node) override
 	{
-		//	LHS?
-		if( myLhsVar)	//	Write
+		// LHS?
+		if( myLhsVar)	// Write
 		{
-			//	Record address in myLhsVarAdr
+			// Record address in myLhsVarAdr
 			myLhsVarIdx = node.index;
 		}
-		else			//	Read
+		else			// Read
 		{
-			//	Push domain onto the stack
+			// Push domain onto the stack
 			myDomStack.push( myVarDomains[node.index]);
 		}
 	}
@@ -525,7 +525,7 @@ public:
 		myDomStack.push( node.val);
 	}
 
-	//	Scenario related
+	// Scenario related
 	void visitSpot( NodeSpot& node) override
 	{
 		static const Domain realDom( Interval( Bound::minusInfinity, Bound::plusInfinity));

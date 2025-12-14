@@ -33,7 +33,7 @@ public:
     //  Clone
     virtual unique_ptr<RandomGen> clone() const = 0;
 
-	//	Skip ahead (for parallel Monte-Carlo)
+	// Skip ahead (for parallel Monte-Carlo)
 	virtual void skipAhead(const long skip)
 	{
 		throw randomgen_error("Concrete random generator cannot be used for parallel simulations");

@@ -26,17 +26,17 @@ class Debugger : public constVisitor
 	string					myPrefix;
 	quickStack<string>		myStack;
 
-	//	The main function call from every node visitor
+	// The main function call from every node visitor
 	void debug( const Node& node, const string& nodeId)
 	{
-		//	One more tab
+		// One more tab
 		myPrefix += '\t';
 
-		//	Visit arguments, right to left
+		// Visit arguments, right to left
 		for( auto it = node.arguments.rbegin(); it != node.arguments.rend(); ++it)
 			(*it)->acceptVisitor( *this);
 	
-		//	One less tab
+		// One less tab
 		myPrefix.pop_back();
 
 		string str( myPrefix + nodeId);
@@ -44,12 +44,12 @@ class Debugger : public constVisitor
 		{ 			
 			str += "(\n";
 
-			//	First argument, pushed last
+			// First argument, pushed last
 			str += myStack.top();
 			myStack.pop();
 			if( node.arguments.size() > 1) str += myPrefix + ",\n";
 
-			//	Args 2 to n-1
+			// Args 2 to n-1
 			for(size_t i=1; i<node.arguments.size()-1; ++i)
 			{
 				str += myStack.top() + myPrefix + ",\n";
@@ -58,12 +58,12 @@ class Debugger : public constVisitor
 
 			if( node.arguments.size() > 1)
 			{
-				//	Last argument, pushed first
+				// Last argument, pushed first
 				str += myStack.top();
 				myStack.pop();
 			}
 
-			//	Close ')'
+			// Close ')'
 			str += myPrefix + ')';
 		}
 
@@ -73,13 +73,13 @@ class Debugger : public constVisitor
 
 public:
 
-	//	Access the top of the stack, contains the functional form after the tree is traversed
+	// Access the top of the stack, contains the functional form after the tree is traversed
 	string getString() const
 	{
 		return myStack.top();
 	}
 
-	//	All concrete node visitors, visit arguments by default unless overridden
+	// All concrete node visitors, visit arguments by default unless overridden
 
 	void visitCollect( const NodeCollect& node) override { debug( node, "COLLECT"); }
 

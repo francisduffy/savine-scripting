@@ -23,12 +23,12 @@ As long as this comment is preserved at the top of the file
 
 class VarIndexer : public Visitor
 {
-	//	State
+	// State
 	map<string,size_t>	myVarMap;
 
 public:
 
-	//	Access vector of variable names v[index]=name after visit to all events
+	// Access vector of variable names v[index]=name after visit to all events
 	vector<string> getVarNames() const
 	{
 		vector<string> v( myVarMap.size());
@@ -37,11 +37,11 @@ public:
 			v[varMapIt->second] = varMapIt->first;
 		}
 
-		//	C++11: move not copy
+		// C++11: move not copy
 		return v;
 	}
 
-	//	Variable indexer: build map of names to indices and write indices on variable nodes
+	// Variable indexer: build map of names to indices and write indices on variable nodes
 	void visitVar( NodeVar& node) override
 	{
 		auto varIt = myVarMap.find( node.name);

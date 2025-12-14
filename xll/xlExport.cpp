@@ -19,11 +19,11 @@ As long as this comment is preserved at the top of the file
 #include <xlcall.h>
 #include <framewrk.h>
 
-//	Additional xl utilities, useful for ranges of strings
+// Additional xl utilities, useful for ranges of strings
 #include "xlOper12.h"
 static XLOper12 error = ErrorNotAvailable12;
 
-//	Wrappers
+// Wrappers
 
 extern "C" __declspec(dllexport)
 double xMultiply2Numbers(double x, double y)
@@ -108,7 +108,7 @@ extern "C" __declspec(dllexport) XLOper12* TestScript(
 
 }
 
-//	Registers
+// Registers
 
 extern "C" __declspec(dllexport) int xlAutoOpen(void)
 {

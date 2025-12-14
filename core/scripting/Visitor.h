@@ -21,14 +21,14 @@ As long as this comment is preserved at the top of the file
 class Visitor
 {
 protected:
-	//	Protected constructor so the base class cannot be instantiated
+	// Protected constructor so the base class cannot be instantiated
 	Visitor() {}
 
 public:
 	virtual ~Visitor() {}
 
 protected:
-	//	Default visit just visits arguments so as to ensure that the whole sub-tree is visited
+	// Default visit just visits arguments so as to ensure that the whole sub-tree is visited
 	virtual void visitArguments( Node& node) 
 	{
 		for( auto& arg : node.arguments) arg->acceptVisitor( *this);
@@ -36,13 +36,13 @@ protected:
 
 public:
 
-	//	Entry point for visiting a (sub-) tree
+	// Entry point for visiting a (sub-) tree
 	void visit( ExprTree& tree)
 	{
 		tree->acceptVisitor( *this);
 	}
 
-	//	All concrete node default visitors, visit arguments unless overridden
+	// All concrete node default visitors, visit arguments unless overridden
 	virtual void visitCollect( NodeCollect& node) { visitArguments( node); }
 	virtual void visitTrue( NodeTrue& node) { visitArguments( node); }
 	virtual void visitFalse( NodeFalse& node) { visitArguments( node); }
@@ -75,14 +75,14 @@ public:
 class constVisitor
 {
 protected:
-	//	Protected constructor so the base class cannot be instantiated
+	// Protected constructor so the base class cannot be instantiated
 	constVisitor() {}
 
 public:
 	virtual ~constVisitor() {}
 
 protected:
-	//	Default visit just visits arguments so as to ensure that the whole sub-tree is visited
+	// Default visit just visits arguments so as to ensure that the whole sub-tree is visited
 	virtual void visitArguments( const Node& node) 
 	{
 		for( auto& arg : node.arguments) arg->acceptVisitor( *this);
@@ -90,13 +90,13 @@ protected:
 
 public:
 
-	//	Entry point for visiting a (sub-) tree
+	// Entry point for visiting a (sub-) tree
 	void visit( const ExprTree& tree)
 	{
 		tree->acceptVisitor( *this);
 	}
 
-	//	All concrete node default visitors, visit arguments unless overridden
+	// All concrete node default visitors, visit arguments unless overridden
 
 	virtual void visitCollect( const NodeCollect& node) { visitArguments( node); }
 	virtual void visitTrue( const NodeTrue& node) { visitArguments( node); }

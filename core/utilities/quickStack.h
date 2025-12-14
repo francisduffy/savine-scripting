@@ -33,7 +33,7 @@ private:
 
 public:
 
-	//	Constructor, destructor
+	// Constructor, destructor
 
 	quickStack(const size_t chunk_size = DefaultSize)
 	{
@@ -48,7 +48,7 @@ public:
 		if (myData) delete[] myData;
 	}
 
-	//	Copier, mover
+	// Copier, mover
 
 	quickStack(const quickStack& rhs)
 	{
@@ -151,7 +151,7 @@ public:
 		return myData[mySp - 1];
 	}
 
-	//	Random access
+	// Random access
 	inline T& operator[](const size_t i)
 	{
 		return myData[mySp - 1 - i];

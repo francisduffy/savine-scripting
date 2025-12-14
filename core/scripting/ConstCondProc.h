@@ -18,19 +18,19 @@ As long as this comment is preserved at the top of the file
 
 #include "Visitor.h"
 
-//	ConstCond processor
-//	Processes all constant (always true/false) conditions and conditional statements
-//	Remove all the if and condition nodes that are always true or always false
-//	The domain proc must have been run first, so always true/false flags are properly set inside the nodes
-//	The always true/false if nodes are replaced by collections of statements to be evaluated
-//	The always true/false conditions are replaced by true/false nodes
+// ConstCond processor
+// Processes all constant (always true/false) conditions and conditional statements
+// Remove all the if and condition nodes that are always true or always false
+// The domain proc must have been run first, so always true/false flags are properly set inside the nodes
+// The always true/false if nodes are replaced by collections of statements to be evaluated
+// The always true/false conditions are replaced by true/false nodes
 
 class ConstCondProcessor : public Visitor
 {
-	//	The (unique) pointer on the node currently being visited 
+	// The (unique) pointer on the node currently being visited 
 	ExprTree*			myCurrent;
 
-	//	Overriden default visitor sets myCurrent when visiting arguments
+	// Overriden default visitor sets myCurrent when visiting arguments
 	void visitArguments( Node& node) override
 	{
 		for( auto& arg : node.arguments) 
@@ -42,32 +42,32 @@ class ConstCondProcessor : public Visitor
 
 public:
 
-	//	This patricular visitor modifies the structure of the tree, hence it must be called only
-	//		with this method from the top of every tree, passing a ref on the unique_ptr holding 
-	//		the top node of the tree
+	// This patricular visitor modifies the structure of the tree, hence it must be called only
+	// with this method from the top of every tree, passing a ref on the unique_ptr holding 
+	// the top node of the tree
 	void processFromTop( unique_ptr<Node>& top) 
 	{
 		myCurrent = &top;
 		top->acceptVisitor( *this);
 	}
 
-	//	Conditions
+	// Conditions
 
-	//	One visitor for all conditions
+	// One visitor for all conditions
 	template <class NodeCond>
 	inline void visitCondT( NodeCond& node)
 	{
-		//	Always true ==> replace the tree by a True node
+		// Always true ==> replace the tree by a True node
 		if( node.myAlwaysTrue) myCurrent->reset( new NodeTrue());
 		
-		//	Always false ==> replace the tree by a False node
+		// Always false ==> replace the tree by a False node
 		else if( node.myAlwaysFalse) myCurrent->reset( new NodeFalse());
 
-		//	Nothing to do here ==> visit the arguments
+		// Nothing to do here ==> visit the arguments
 		else visitArguments( node);
 	}
 
-	//	Visitors
+	// Visitors
 	void visitEqual( NodeEqual& node) override
 	{
 		visitCondT( node);
@@ -93,15 +93,15 @@ public:
 		visitCondT( node);
 	}
 
-	//	If
+	// If
 	void visitIf( NodeIf& node) override
 	{
-		//	Always true ==> replace the tree by the collection of "if true" statements
+		// Always true ==> replace the tree by the collection of "if true" statements
 		if( node.myAlwaysTrue) 
 		{
             size_t lastTrueStat = node.firstElse == -1? node.arguments.size()-1: node.firstElse-1;
 			
-			//	Move arguments, destroy node
+			// Move arguments, destroy node
 			vector<ExprTree> args = move( node.arguments);
 			myCurrent->reset( new NodeCollect());
 			
@@ -113,12 +113,12 @@ public:
 			visitArguments( **myCurrent);
 		}
 		
-		//	Always false ==> replace the tree by the collection of "else" statements
+		// Always false ==> replace the tree by the collection of "else" statements
 		else if( node.myAlwaysFalse) 
 		{
 			int firstElseStatement = node.firstElse;
 
-			//	Move arguments, destroy node
+			// Move arguments, destroy node
 			vector<ExprTree> args = move( node.arguments);
 			myCurrent->reset( new NodeCollect());
 
@@ -133,7 +133,7 @@ public:
 			visitArguments( **myCurrent);
 		}
 
-		//	Nothing to do here ==> visit the arguments
+		// Nothing to do here ==> visit the arguments
 		else visitArguments( node);
 	}
 };

@@ -26,7 +26,7 @@ As long as this comment is preserved at the top of the file
 template <class T>
 struct Model
 {
-	//	Clone
+	// Clone
 	virtual unique_ptr<Model> clone() const = 0;
 
     //  Initialize simulation dates
@@ -52,14 +52,14 @@ class SimpleBlackScholes : public Model<T>
     T                   myVol;
     T                   myDrift;
 
-	bool				myTime0;	//	If today is among simul dates
+	bool				myTime0;	// If today is among simul dates
 	vector<double>		myTimes;
 	vector<double>		myDt;
 	vector<double>		mySqrtDt;
 		
 private:
 
-    //	Calculate all deterministic discount factors
+    // Calculate all deterministic discount factors
     void calcDf( vector<T>& dfs) const
     {
         for (size_t i = 0; i<myTimes.size(); ++i)
@@ -68,13 +68,13 @@ private:
 
 public:
 
-	//	Construct with T0, S0, vol and rate
+	// Construct with T0, S0, vol and rate
     SimpleBlackScholes( const Date& today, const double spot, const double vol, const double rate)
 		: myToday( today), mySpot( spot), myVol( vol), myRate( rate),
         myDrift(-rate+0.5*vol*vol)
     {}
 
-	//	Clone
+	// Clone
 	virtual unique_ptr<Model> clone() const override
 	{
 		return unique_ptr<Model>(new SimpleBlackScholes(*this));
@@ -85,12 +85,12 @@ public:
     const T& rate() { return myRate; }
     const T& vol() { return myVol; }
 
-	//	Initialize simulation dates
+	// Initialize simulation dates
 	void initSimDates(const vector<Date>& simDates) override
 	{
 		myTime0 = simDates[0] == myToday;
 
-		//	Fill array of times
+		// Fill array of times
 		for( auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt)
 		{
 			myTimes.push_back( double( *dateIt - myToday) / 365);
@@ -110,7 +110,7 @@ public:
 
     size_t dim() const override { return myTimes.size() - myTime0; }
 
-	//	Simulate one path 
+	// Simulate one path 
     //  Apply the model SDE
     void applySDE(
         const vector<double>&   G,              //  Gaussian numbers, dimension dim()
@@ -125,11 +125,11 @@ public:
         //  Then apply the SDE
         size_t step = 0;
 
-		//	First step
+		// First step
 		spots[0] = myTime0? mySpot: 
 			mySpot*exp(-myDrift*myDt[0]+myVol*mySqrtDt[0]*G[step++]);
 
-		//	All steps
+		// All steps
 		for(size_t i=1; i<myTimes.size(); ++i)
 		{
 			spots[i] = spots[i-1]
@@ -146,14 +146,14 @@ class SimpleBachelier : public Model<T>
     T                   myRate;
     T                   myVol;
 
-    bool				myTime0;	//	If today is among simul dates
+    bool				myTime0;	// If today is among simul dates
     vector<double>		myTimes;
     vector<double>		myDt;
     vector<double>		mySqrtDt;
 
 private:
 
-    //	Calculate all deterministic discount factors
+    // Calculate all deterministic discount factors
     void calcDf(vector<T>& dfs) const
     {
         for (size_t i = 0; i<myTimes.size(); ++i)
@@ -162,12 +162,12 @@ private:
 
 public:
 
-    //	Construct with T0, S0, vol and rate
+    // Construct with T0, S0, vol and rate
     SimpleBachelier(const Date& today, const double spot, const double vol, const double rate)
         : myToday(today), mySpot(spot), myVol(vol), myRate(rate)
     {}
 
-	//	Clone
+	// Clone
 	virtual unique_ptr<Model> clone() const override
 	{
 		return unique_ptr<Model>(new SimpleBachelier(*this));
@@ -178,12 +178,12 @@ public:
     const T& rate() { return myRate; }
     const T& vol() { return myVol; }
 
-    //	Initialize simulation dates
+    // Initialize simulation dates
     void initSimDates(const vector<Date>& simDates) override
     {
         myTime0 = simDates[0] == myToday;
 
-        //	Fill array of times
+        // Fill array of times
         for (auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt)
         {
             myTimes.push_back(double(*dateIt - myToday) / 365);
@@ -203,7 +203,7 @@ public:
 
     size_t dim() const override { return myTimes.size() - myTime0; }
 
-    //	Simulate one path 
+    // Simulate one path 
     //  Apply the model SDE
     void applySDE(
         const vector<double>&   G,              //  Gaussian numbers, dimension dim()
@@ -221,11 +221,11 @@ public:
         //  If rate ~0 the dynamics is simpler and can be simulated more efficiently
         if (fabs(myRate) < 0.0001)
         {
-            //	First step
+            // First step
             spots[0] = myTime0 ? mySpot :
                 mySpot + myVol * mySqrtDt[0] * G[step++];
 
-            //	All steps
+            // All steps
             for (size_t i = 1; i<myTimes.size(); ++i)
             {
                 spots[i] = spots[i - 1] + myVol * mySqrtDt[i] * G[step++];
@@ -234,11 +234,11 @@ public:
         //  General dynamics with non-zero rates
         else
         {
-            //	First step
+            // First step
             spots[0] = myTime0 ? mySpot :
                 mySpot * exp(myRate * myDt[0]) + myVol * sqrt ((exp (2 * myRate * myDt[0]) - 1) / (2 * myRate)) * G[step++];
 
-            //	All steps
+            // All steps
             for (size_t i = 1; i<myTimes.size(); ++i)
             {
                 spots[i] = spots[i - 1] * exp(myRate * myDt[i]) + myVol * sqrt((exp(2 * myRate * myDt[i]) - 1) / (2 * myRate)) * G[step++];
@@ -318,24 +318,24 @@ inline void simpleBsScriptVal(
     	const bool              	normal,     //  true = normal, false = lognormal
 	const map<Date,string>&		events,
 	const unsigned			numSim,
-	const unsigned			seed,		//	0 = default
-	//	Fuzzy
-	const bool			fuzzy,		//	Use sharp (false) or fuzzy (true) eval
-	const double			defEps,		//	Default epsilon, may be redefined by node
-	const bool			skipDoms,	//	Skip domains (unless fuzzy)
-	//	Results
+	const unsigned			seed,		// 0 = default
+	// Fuzzy
+	const bool			fuzzy,		// Use sharp (false) or fuzzy (true) eval
+	const double			defEps,		// Default epsilon, may be redefined by node
+	const bool			skipDoms,	// Skip domains (unless fuzzy)
+	// Results
 	vector<string>&			varNames,
 	vector<double>&			varVals)
 {
 	if( events.begin()->first < today)
 		throw runtime_error("Events in the past are disallowed");
 
-	//	Initialize product
+	// Initialize product
 	Product prd;
 	prd.parseEvents( events.begin(), events.end());
 	unsigned maxNestedIfs = prd.preProcess( fuzzy, skipDoms);
 
-	//	Build evaluator and scenarios
+	// Build evaluator and scenarios
 	unique_ptr<Scenario<double>> scen = prd.buildScenario<double>();
 
 	unique_ptr<Evaluator<double>> eval;
@@ -348,22 +348,22 @@ inline void simpleBsScriptVal(
     if (normal) model.reset( new SimpleBachelier<double>(today, spot, vol, rate));
     else model.reset(new SimpleBlackScholes<double>(today, spot, vol, rate));
 
-	//	Initialize simulator
+	// Initialize simulator
     ScriptSimulator<double> simulator( *model, random);
     simulator.initForScripting( prd.eventDates());
 
-	//	Initialize results
+	// Initialize results
 	varNames = prd.varNames();
 	varVals.resize( varNames.size(), 0.0);
 
-	//	Loop over simulations
+	// Loop over simulations
 	for( size_t i=0; i<numSim; ++i)
 	{
-		//	Generate next scenario into scen
+		// Generate next scenario into scen
 		simulator.nextScenario( *scen);
-		//	Evaluate product 
+		// Evaluate product 
 		prd.evaluate( *scen, *eval);
-		//	Update results
+		// Update results
 		for(size_t v=0; v<varVals.size(); ++v)
 		{
 			varVals[v] += eval->varVals()[v] / numSim;

@@ -31,31 +31,31 @@ class Evaluator : public constVisitor
 
 protected:
 
-	//	State
+	// State
 	vector<T>				    myVariables;
 
-	//	Stacks
+	// Stacks
 	quickStack<T>			    myDstack;
 	quickStack<bool>			myBstack;
 
-	//	LHS variable being visited?
+	// LHS variable being visited?
 	bool						myLhsVar;
 	T*						    myLhsVarAdr;
 
-	//	Reference to current scenario
+	// Reference to current scenario
 	const Scenario<T>*			myScenario;
 
-	//	Index of current event
+	// Index of current event
 	size_t					    myCurEvt;
 
-	//	Visit arguments, right to left
+	// Visit arguments, right to left
 	void evalArgs( const Node& node)
 	{
 		for( auto it = node.arguments.rbegin(); it != node.arguments.rend(); ++it) 
 			(*it)->acceptVisitor( *this);
 	}
 
-	//	Pop the top 2 numbers of the number stack
+	// Pop the top 2 numbers of the number stack
 	pair<T,T> pop2()
 	{
 		pair<T,T> res;
@@ -66,7 +66,7 @@ protected:
 		return res;
 	}
 
-	//	Pop the top 2 bools of the bool stack
+	// Pop the top 2 bools of the bool stack
 	pair<bool,bool> pop2b()
 	{
 		pair<bool,bool> res;
@@ -79,12 +79,12 @@ protected:
 
 public:
 
-	//	Constructor, nVar = number of variables, from Product after parsing and variable indexation
+	// Constructor, nVar = number of variables, from Product after parsing and variable indexation
 	Evaluator( const size_t nVar) : myVariables( nVar) {}
 
 	virtual ~Evaluator() {}
 
-	//	Copy/Move
+	// Copy/Move
 
 	Evaluator( const Evaluator& rhs) : myVariables( rhs.myVariables) {}
 	Evaluator& operator=( const Evaluator& rhs) 
@@ -101,45 +101,45 @@ public:
 		return *this;
 	}
 
-	//	(Re-)initialize before evaluation in each scenario
+	// (Re-)initialize before evaluation in each scenario
 	virtual void init()
 	{
 		for( auto& varIt : myVariables) varIt = 0.0;
-		//	Stacks should be empty, if this is not the case the empty them
-		//		without affecting capacity for added performance
+		// Stacks should be empty, if this is not the case the empty them
+		// without affecting capacity for added performance
 		while( !myDstack.empty()) myDstack.pop();
 		while( !myBstack.empty()) myBstack.pop();
 		myLhsVar = false;
 		myLhsVarAdr = nullptr;
 	}
 
-	//	Accessors
+	// Accessors
 
-	//	Access to variable values after evaluation
+	// Access to variable values after evaluation
 	const vector<T>& varVals() const
 	{
 		return myVariables;
 	}
 
-	//	Set generated scenarios and current event
+	// Set generated scenarios and current event
 
-	//	Set reference to current scenario
+	// Set reference to current scenario
 	void setScenario( const Scenario<T>* scen)
 	{
 		myScenario = scen;
 	}
 
-	//	Set index of current event
+	// Set index of current event
 	void setCurEvt( const size_t curEvt)
 	{
 		myCurEvt = curEvt;
 	}
 
-	//	Visitors
+	// Visitors
 
-	//	Expressions
+	// Expressions
 
-	//	Binaries
+	// Binaries
 	
 	void visitAdd( const NodeAdd& node) override
 	{ 
@@ -172,11 +172,11 @@ public:
 		myDstack.push( pow( args.first, args.second)); 
 	}
 
-	//	Unaries
+	// Unaries
 	void visitUplus( const NodeUplus& node) override { evalArgs( node); }
 	void visitUminus( const NodeUminus& node) override { evalArgs( node); myDstack.top() *= -1; }
 
-	//	Functions
+	// Functions
 	void visitLog( const NodeLog& node) override
 	{
 		evalArgs( node);
@@ -227,23 +227,23 @@ public:
 	}
 	void visitSmooth( const NodeSmooth& node) override
 	{
-		//	Eval the condition
+		// Eval the condition
 		node.arguments[0]->acceptVisitor( *this);
 		const T x = myDstack.top();
 		myDstack.pop();
 
-		//	Eval the epsilon
+		// Eval the epsilon
 		node.arguments[3]->acceptVisitor( *this);
 		const T halfEps = 0.5*myDstack.top();
 		myDstack.pop();
 
-		//	Left
+		// Left
 		if( x < -halfEps) node.arguments[2]->acceptVisitor( *this);
 
-		//	Right
+		// Right
 		else if( x > halfEps) node.arguments[1]->acceptVisitor( *this);
 
-		//	Fuzzy
+		// Fuzzy
 		else
 		{
 			node.arguments[1]->acceptVisitor( *this);
@@ -258,7 +258,7 @@ public:
 		}
 	}
 
-	//	Conditions
+	// Conditions
 	
 	#define EPS 1.0e-12
 	#define ONEMINUSEPS 0.999999999999
@@ -313,17 +313,17 @@ public:
 		myBstack.push( args.first || args.second); 
 	}
 	
-	//	Instructions
+	// Instructions
 	void visitIf( const NodeIf& node) override
 	{
-		//	Eval the condition
+		// Eval the condition
 		node.arguments[0]->acceptVisitor( *this);
 		
-		//	Pick the result
+		// Pick the result
 		const bool isTrue = myBstack.top();
 		myBstack.pop();
 
-		//	Evaluate the relevant statements
+		// Evaluate the relevant statements
 		if( isTrue)
 		{
 			const unsigned lastTrue = node.firstElse == -1? node.arguments.size()-1: node.firstElse-1;
@@ -343,46 +343,46 @@ public:
 
 	void visitAssign( const NodeAssign& node) override
 	{
-		//	Visit the LHS variable
+		// Visit the LHS variable
 		myLhsVar = true;
 		node.arguments[0]->acceptVisitor( *this);
 		myLhsVar = false;
 
-		//	Visit the RHS expression
+		// Visit the RHS expression
 		node.arguments[1]->acceptVisitor( *this);
 	
-		//	Write result into variable
+		// Write result into variable
 		*myLhsVarAdr = myDstack.top();
 		myDstack.pop();
 	}
 
 	void visitPays( const NodePays& node) override
 	{
-		//	Visit the LHS variable
+		// Visit the LHS variable
 		myLhsVar = true;
 		node.arguments[0]->acceptVisitor( *this);
 		myLhsVar = false;
 
-		//	Visit the RHS expression
+		// Visit the RHS expression
 		node.arguments[1]->acceptVisitor( *this);
 	
-		//	Write result into variable
+		// Write result into variable
 		*myLhsVarAdr += myDstack.top() / (*myScenario)[myCurEvt].numeraire;
 		myDstack.pop();
 	}
 
-	//	Variables and constants
+	// Variables and constants
 	void visitVar( const NodeVar& node) override
 	{
-		//	LHS?
-		if( myLhsVar)	//	Write
+		// LHS?
+		if( myLhsVar)	// Write
 		{
-			//	Record address in myLhsVarAdr
+			// Record address in myLhsVarAdr
 			myLhsVarAdr = &myVariables[node.index];
 		}
-		else			//	Read
+		else			// Read
 		{
-			//	Push value onto the stack
+			// Push value onto the stack
 			myDstack.push( myVariables[node.index]);
 		}
 	}
@@ -392,7 +392,7 @@ public:
 		myDstack.push( node.val);
 	}
 
-	//	Scenario related
+	// Scenario related
 	void visitSpot( const NodeSpot& node) override
 	{
 		myDstack.push( (*myScenario)[myCurEvt].spot);
