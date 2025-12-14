@@ -14,7 +14,7 @@ Wiley, 2018
 As long as this comment is preserved at the top of the file
 */
 
-#include "functDomain.h"	
+#include "functDomain.h"
 
 const Bound::PlusInfinity Bound::plusInfinity;
 const Bound::MinusInfinity Bound::minusInfinity;

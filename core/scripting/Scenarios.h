@@ -20,10 +20,9 @@ As long as this comment is preserved at the top of the file
 using namespace std;
 
 template <class T>
-struct SimulData
-{
-	T           spot;
-	T           numeraire;
+struct SimulData {
+    T spot;
+    T numeraire;
 };
 
 template <class T>

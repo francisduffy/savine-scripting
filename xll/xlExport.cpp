@@ -25,10 +25,8 @@ static XLOper12 error = ErrorNotAvailable12;
 
 // Wrappers
 
-extern "C" __declspec(dllexport)
-double xMultiply2Numbers(double x, double y)
-{
-	return x * y;
+extern "C" __declspec(dllexport) double xMultiply2Numbers(double x, double y) {
+    return x * y;
 }
 
 #include "scripting/Parser.h"
@@ -37,111 +35,100 @@ double xMultiply2Numbers(double x, double y)
 #include "scripting/Events.h"
 #include "scripting/Model.h"
 
-extern "C" __declspec(dllexport) XLOper12* TestScript(
-	XLOper12 *xToday,
-	XLOper12 *xSpot,
-	XLOper12 *xVol,
-	XLOper12 *xRate,
-	XLOper12 *xEvtDates,
-	XLOper12 *xEvts,
-	XLOper12 *xNumSim,
-	XLOper12 *xSeed,
-	XLOper12 *xFuzzy,
-	XLOper12 *xEps,
-	XLOper12 *xSkipDoms,
-    XLOper12 *xNormal){
-	
-	try{
+extern "C" __declspec(dllexport) XLOper12* TestScript(XLOper12* xToday,
+                                                      XLOper12* xSpot,
+                                                      XLOper12* xVol,
+                                                      XLOper12* xRate,
+                                                      XLOper12* xEvtDates,
+                                                      XLOper12* xEvts,
+                                                      XLOper12* xNumSim,
+                                                      XLOper12* xSeed,
+                                                      XLOper12* xFuzzy,
+                                                      XLOper12* xEps,
+                                                      XLOper12* xSkipDoms,
+                                                      XLOper12* xNormal) {
 
-		Date today = int( *xToday);
-		double spot = double( *xSpot);
-		double vol = double( *xVol);
-		double rate = double( *xRate);
-		unsigned numSim = (unsigned) int( *xNumSim);
-		unsigned seed = (unsigned) int( *xSeed);
+    try {
 
-		unsigned nEvt = xEvts->Size();
-		if( nEvt != xEvtDates->Size()) throw "Event dates and event have different dimensions";
+        Date today = int(*xToday);
+        double spot = double(*xSpot);
+        double vol = double(*xVol);
+        double rate = double(*xRate);
+        unsigned numSim = (unsigned)int(*xNumSim);
+        unsigned seed = (unsigned)int(*xSeed);
 
-		if( today == 0 || spot == 0 || vol == 0 || numSim == 0 || nEvt == 0) throw exception();
+        unsigned nEvt = xEvts->Size();
+        if (nEvt != xEvtDates->Size())
+            throw "Event dates and event have different dimensions";
 
-		map<Date,string> events;
-		for( unsigned i=0; i<nEvt; ++i)
-		{
-			if( int( (*xEvtDates)(i)) > 0) events[int( (*xEvtDates)(i))] += string( (*xEvts)(i)) + " ";
-		}
+        if (today == 0 || spot == 0 || vol == 0 || numSim == 0 || nEvt == 0)
+            throw exception();
 
-		if( !events.size()) throw "No events";
+        map<Date, string> events;
+        for (unsigned i = 0; i < nEvt; ++i) {
+            if (int((*xEvtDates)(i)) > 0)
+                events[int((*xEvtDates)(i))] += string((*xEvts)(i)) + " ";
+        }
 
-		bool fuzzy = bool( *xFuzzy);
-		double eps = 0.0001;
-		if( fuzzy) eps = double( *xEps);
-		bool skipDoms = bool( *xSkipDoms);
+        if (!events.size())
+            throw "No events";
 
-        bool normal = bool( *xNormal);
+        bool fuzzy = bool(*xFuzzy);
+        double eps = 0.0001;
+        if (fuzzy)
+            eps = double(*xEps);
+        bool skipDoms = bool(*xSkipDoms);
 
-		vector<string>			varNames;
-		vector<double>			varVals;
+        bool normal = bool(*xNormal);
 
-		simpleBsScriptVal( today, spot, vol, rate, normal, events, numSim, seed, fuzzy, eps, skipDoms, varNames, varVals);
+        vector<string> varNames;
+        vector<double> varVals;
 
-		XLOper12 res( varNames.size(), 2);
+        simpleBsScriptVal(today, spot, vol, rate, normal, events, numSim, seed, fuzzy, eps, skipDoms, varNames,
+                          varVals);
 
-		for( unsigned i=0; i<varNames.size(); ++i)
-		{
-			res(i,0) = XLOper12( varNames[i]);
-			res(i,1) = XLOper12( varVals[i]);
-		}
+        XLOper12 res(varNames.size(), 2);
 
-		return return_xloper_raw_ptr (res);
+        for (unsigned i = 0; i < varNames.size(); ++i) {
+            res(i, 0) = XLOper12(varNames[i]);
+            res(i, 1) = XLOper12(varVals[i]);
+        }
 
-	} 
-	catch (const exception& e){
-		
-		XLOper12 res( e.what());
-		return return_xloper_raw_ptr (res);
-	}
-	catch (...){
-				
-		return &error;
-	}
+        return return_xloper_raw_ptr(res);
 
+    } catch (const exception& e) {
+
+        XLOper12 res(e.what());
+        return return_xloper_raw_ptr(res);
+    } catch (...) {
+
+        return &error;
+    }
 }
 
 // Registers
 
-extern "C" __declspec(dllexport) int xlAutoOpen(void)
-{
-	XLOPER12 xDLL;
+extern "C" __declspec(dllexport) int xlAutoOpen(void) {
+    XLOPER12 xDLL;
 
-	Excel12f(xlGetName, &xDLL, 0);
+    Excel12f(xlGetName, &xDLL, 0);
 
-	Excel12f(xlfRegister, 0, 11, (LPXLOPER12)&xDLL,
-		(LPXLOPER12)TempStr12(L"xMultiply2Numbers"),
-		(LPXLOPER12)TempStr12(L"BBB"),
-		(LPXLOPER12)TempStr12(L"xMultiply2Numbers"),
-		(LPXLOPER12)TempStr12(L"x, y"),
-		(LPXLOPER12)TempStr12(L"1"),
-		(LPXLOPER12)TempStr12(L"myOwnCppFunctions"),
-		(LPXLOPER12)TempStr12(L""),
-		(LPXLOPER12)TempStr12(L""),
-		(LPXLOPER12)TempStr12(L"Multiplies 2 numbers"),
-		(LPXLOPER12)TempStr12(L"number 1, number 2"));
+    Excel12f(xlfRegister, 0, 11, (LPXLOPER12)&xDLL, (LPXLOPER12)TempStr12(L"xMultiply2Numbers"),
+             (LPXLOPER12)TempStr12(L"BBB"), (LPXLOPER12)TempStr12(L"xMultiply2Numbers"), (LPXLOPER12)TempStr12(L"x, y"),
+             (LPXLOPER12)TempStr12(L"1"), (LPXLOPER12)TempStr12(L"myOwnCppFunctions"), (LPXLOPER12)TempStr12(L""),
+             (LPXLOPER12)TempStr12(L""), (LPXLOPER12)TempStr12(L"Multiplies 2 numbers"),
+             (LPXLOPER12)TempStr12(L"number 1, number 2"));
 
-	Excel12f(xlfRegister, 0, 11, (LPXLOPER12)&xDLL,
-		(LPXLOPER12)TempStr12(L"TestScript"),
-		(LPXLOPER12)TempStr12(L"QQQQQQQQQQQQQ"),
-		(LPXLOPER12)TempStr12(L"TestScript"),
-		(LPXLOPER12)TempStr12(L"today,spot,vol,rate,{evtDates},{events},numSim,[Seed],[FuzzyEval],[FuzzyEps],[SkipDomains],[Normal]"),
-		(LPXLOPER12)TempStr12(L"1"),
-		(LPXLOPER12)TempStr12(L"myOwnCppFunctions"),
-		(LPXLOPER12)TempStr12(L""),
-		(LPXLOPER12)TempStr12(L""),
-		(LPXLOPER12)TempStr12(L""),
-		(LPXLOPER12)TempStr12(L""));
+    Excel12f(
+        xlfRegister, 0, 11, (LPXLOPER12)&xDLL, (LPXLOPER12)TempStr12(L"TestScript"),
+        (LPXLOPER12)TempStr12(L"QQQQQQQQQQQQQ"), (LPXLOPER12)TempStr12(L"TestScript"),
+        (LPXLOPER12)TempStr12(
+            L"today,spot,vol,rate,{evtDates},{events},numSim,[Seed],[FuzzyEval],[FuzzyEps],[SkipDomains],[Normal]"),
+        (LPXLOPER12)TempStr12(L"1"), (LPXLOPER12)TempStr12(L"myOwnCppFunctions"), (LPXLOPER12)TempStr12(L""),
+        (LPXLOPER12)TempStr12(L""), (LPXLOPER12)TempStr12(L""), (LPXLOPER12)TempStr12(L""));
 
-	/* Free the XLL filename */
-	Excel12f(xlFree, 0, 1, (LPXLOPER12)&xDLL);
+    /* Free the XLL filename */
+    Excel12f(xlFree, 0, 1, (LPXLOPER12)&xDLL);
 
-	return 1;
+    return 1;
 }

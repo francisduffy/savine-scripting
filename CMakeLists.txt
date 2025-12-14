@@ -38,3 +38,18 @@ endif()
 
 # Example usage
 add_subdirectory(example)
+
+# Add a target for formatting all files using clang-format.
+find_program(CLANG_FORMAT clang-format PATHS "$ENV{VCINSTALLDIR}Tools/Llvm/x64/bin")
+
+if(CLANG_FORMAT)
+    file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h *.hpp *.c)
+
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT} -i ${ALL_SOURCE_FILES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running clang-format on all source files"
+    )
+else()
+    message(STATUS "clang-format not found. 'format' target will not be available.")
+endif()

@@ -16,16 +16,16 @@ As long as this comment is preserved at the top of the file
 
 #pragma once
 
-#include "Nodes.h"
-#include "Parser.h"
-#include "Visitor.h"
-#include "VarIndexer.h"
+#include "ConstCondProc.h"
 #include "Debugger.h"
+#include "DomainProc.h"
 #include "Evaluator.h"
 #include "FuzzyEval.h"
+#include "Nodes.h"
+#include "Parser.h"
 #include "Scenarios.h"
-#include "DomainProc.h"
-#include "ConstCondProc.h"
+#include "VarIndexer.h"
+#include "Visitor.h"
 
 using namespace std;
 #include <vector>
@@ -37,215 +37,184 @@ using Event = vector<Statement>;
 // class Date;
 using Date = int;
 
-class Product
-{
-	vector<Date>		myEventDates;
-	vector<Event>		myEvents;
-	vector<string>		myVariables;
+class Product {
+    vector<Date> myEventDates;
+    vector<Event> myEvents;
+    vector<string> myVariables;
 
-public:
+  public:
+    // Accessors
 
-	// Accessors
+    // Access event dates
+    const vector<Date>& eventDates() { return myEventDates; }
+    // Events are not accessed, remain encapsulated in the product
 
-	// Access event dates
-	const vector<Date>& eventDates()
-	{
-		return myEventDates;
-	}
-	// Events are not accessed, remain encapsulated in the product
+    // Access number of variables (vector size) and names
+    const vector<string>& varNames() const { return myVariables; }
 
-	// Access number of variables (vector size) and names
-	const vector<string>& varNames() const
-	{
-		return myVariables;
-	}
+    // Factories
 
-	// Factories
-
-	// Evaluator factory
-	template <class T>
-    unique_ptr<Evaluator<T>> buildEvaluator()
-	{
-		// Move
-		return unique_ptr<Evaluator<T>>( new Evaluator<T>( myVariables.size()));
-	}
+    // Evaluator factory
     template <class T>
-	unique_ptr<Evaluator<T>> buildFuzzyEvaluator( const size_t maxNestedIfs, const double defEps)
-	{
-		return unique_ptr<Evaluator<T>>( new FuzzyEvaluator<T>( myVariables.size(), maxNestedIfs, defEps));
-	}
-
-	// Scenario factory
-	template <class T>
-    unique_ptr<Scenario<T>> buildScenario()
-	{
-		// Move
-		return unique_ptr<Scenario<T>>( new Scenario<T>( myEventDates.size()));
-	}
-
-	// Parser
-
-	// Build events out of event strings
-	template<class EvtIt>
-	// Takes begin and end iterators on pairs of dates and corresponding event strings
-	// as from a map<Date,string>
-	void parseEvents( EvtIt begin, EvtIt end)
-	{
-		// Copy event dates and parses event strings sequentially
-		for( EvtIt evtIt = begin; evtIt != end; ++evtIt)
-		{
-			// Copy event date
-			myEventDates.push_back( evtIt->first);
-			// Parse event string
-			myEvents.push_back( parse( evtIt->second)); 
-		}
-	}
-
-	// Visitors
-
-	// Sequentially visit all statements in all events
-	void visit( Visitor& v)
-	{
-		// Loop over events
-		for( auto& evt : myEvents)
-		{
-			// Loop over statements in event
-			for( auto& stat : evt)
-			{
-				// Visit statement
-				v.visit( stat);
-			}
-		}
-	}
-
-	// Evaluate all statements in all events
+    unique_ptr<Evaluator<T>> buildEvaluator() {
+        // Move
+        return unique_ptr<Evaluator<T>>(new Evaluator<T>(myVariables.size()));
+    }
     template <class T>
-	void evaluate( const Scenario<T>& scen, Evaluator<T>& eval) const
-	{
-		// Set scenario
-		eval.setScenario( &scen);
+    unique_ptr<Evaluator<T>> buildFuzzyEvaluator(const size_t maxNestedIfs, const double defEps) {
+        return unique_ptr<Evaluator<T>>(new FuzzyEvaluator<T>(myVariables.size(), maxNestedIfs, defEps));
+    }
 
-		// Initialize all variables
-		eval.init();
+    // Scenario factory
+    template <class T>
+    unique_ptr<Scenario<T>> buildScenario() {
+        // Move
+        return unique_ptr<Scenario<T>>(new Scenario<T>(myEventDates.size()));
+    }
 
-		// Loop over events
-		for(size_t i=0; i<myEvents.size(); ++i)
-		{
-			// Set current event
-			eval.setCurEvt( i);
-			
-			// Loop over statements in event
-			for( auto& statIt : myEvents[i])
-			{
-				// Visit statement
-				eval.visit( statIt);
-			}
-		}
-	}
+    // Parser
 
-	// Index all variables
-	void indexVariables()
-	{
-		// Our indexer
-		VarIndexer indexer;
-		
-		// Visit all trees, iterate on events and statements
-		visit( indexer);
+    // Build events out of event strings
+    template <class EvtIt>
+    // Takes begin and end iterators on pairs of dates and corresponding event strings
+    // as from a map<Date,string>
+    void parseEvents(EvtIt begin, EvtIt end) {
+        // Copy event dates and parses event strings sequentially
+        for (EvtIt evtIt = begin; evtIt != end; ++evtIt) {
+            // Copy event date
+            myEventDates.push_back(evtIt->first);
+            // Parse event string
+            myEvents.push_back(parse(evtIt->second));
+        }
+    }
 
-		// Get result moved in myVariables
-		myVariables = indexer.getVarNames();
-	}
+    // Visitors
 
-	// If processing, returns max number of nested ifs
-	size_t ifProcess()
-	{
-		// The fuzzy var processor
-		IfProcessor ifProc;
+    // Sequentially visit all statements in all events
+    void visit(Visitor& v) {
+        // Loop over events
+        for (auto& evt : myEvents) {
+            // Loop over statements in event
+            for (auto& stat : evt) {
+                // Visit statement
+                v.visit(stat);
+            }
+        }
+    }
 
-		// Visit
-		visit( ifProc);
+    // Evaluate all statements in all events
+    template <class T>
+    void evaluate(const Scenario<T>& scen, Evaluator<T>& eval) const {
+        // Set scenario
+        eval.setScenario(&scen);
 
-		// Return
-		return ifProc.maxNestedIfs();
-	}
+        // Initialize all variables
+        eval.init();
 
-	// Domain processing
-	void domainProcess( const bool fuzzy)
-	{
-		// The domain processor
-		DomainProcessor domProc( myVariables.size(), fuzzy);
+        // Loop over events
+        for (size_t i = 0; i < myEvents.size(); ++i) {
+            // Set current event
+            eval.setCurEvt(i);
 
-		// Visit
-		visit( domProc);
-	}
+            // Loop over statements in event
+            for (auto& statIt : myEvents[i]) {
+                // Visit statement
+                eval.visit(statIt);
+            }
+        }
+    }
 
-	// Const condition process, remove all conditions that are always true or always false
-	void constCondProcess()
-	{
-		// The const cond processor
-		ConstCondProcessor ccProc;
+    // Index all variables
+    void indexVariables() {
+        // Our indexer
+        VarIndexer indexer;
 
-		// Visit
-		// Note that changes the structure of the tree, hence a special function must be called 
-		// from the top of each tree
-		// Loop over events
-		for( auto& evt : myEvents)
-		{
-			// Loop over statements in event
-			for( auto& stat : evt)
-			{
-				// Visit statement
-				ccProc.processFromTop( stat);
-			}
-		}
-	}
+        // Visit all trees, iterate on events and statements
+        visit(indexer);
 
-	// All preprocessing
-	size_t preProcess( const bool fuzzy, const bool skipDoms)
-	{
-		indexVariables();
+        // Get result moved in myVariables
+        myVariables = indexer.getVarNames();
+    }
+
+    // If processing, returns max number of nested ifs
+    size_t ifProcess() {
+        // The fuzzy var processor
+        IfProcessor ifProc;
+
+        // Visit
+        visit(ifProc);
+
+        // Return
+        return ifProc.maxNestedIfs();
+    }
+
+    // Domain processing
+    void domainProcess(const bool fuzzy) {
+        // The domain processor
+        DomainProcessor domProc(myVariables.size(), fuzzy);
+
+        // Visit
+        visit(domProc);
+    }
+
+    // Const condition process, remove all conditions that are always true or always false
+    void constCondProcess() {
+        // The const cond processor
+        ConstCondProcessor ccProc;
+
+        // Visit
+        // Note that changes the structure of the tree, hence a special function must be called
+        // from the top of each tree
+        // Loop over events
+        for (auto& evt : myEvents) {
+            // Loop over statements in event
+            for (auto& stat : evt) {
+                // Visit statement
+                ccProc.processFromTop(stat);
+            }
+        }
+    }
+
+    // All preprocessing
+    size_t preProcess(const bool fuzzy, const bool skipDoms) {
+        indexVariables();
 
         size_t maxNestedIfs = 0;
-		
-		if( fuzzy || !skipDoms)
-		{
-			maxNestedIfs = ifProcess();
-			domainProcess( fuzzy);
-			constCondProcess();
-		}
 
-		return maxNestedIfs;
-	}
+        if (fuzzy || !skipDoms) {
+            maxNestedIfs = ifProcess();
+            domainProcess(fuzzy);
+            constCondProcess();
+        }
 
-	// Debug whole product
-	void debug( ostream& ost)
-	{
+        return maxNestedIfs;
+    }
+
+    // Debug whole product
+    void debug(ostream& ost) {
         size_t v = 0;
-		for( auto& it=myVariables.begin(); it!=myVariables.end(); ++it)
-		{
-			ost << "Var[" << v++ << "] = " << *it << endl;
-		}
+        for (auto& it = myVariables.begin(); it != myVariables.end(); ++it) {
+            ost << "Var[" << v++ << "] = " << *it << endl;
+        }
 
-		Debugger d;
-        size_t e=0;
-		for( auto& evtIt : myEvents)
-		{
-			ost << "Event: " << ++e << endl;
-			unsigned s=0;
-			for( auto& stat : evtIt)
-			{
-				d.visit( stat);
-				ost << "Statement: " << ++s << endl;
-				ost << d.getString() << endl;
-			}
-		}
-	}
+        Debugger d;
+        size_t e = 0;
+        for (auto& evtIt : myEvents) {
+            ost << "Event: " << ++e << endl;
+            unsigned s = 0;
+            for (auto& stat : evtIt) {
+                d.visit(stat);
+                ost << "Statement: " << ++s << endl;
+                ost << d.getString() << endl;
+            }
+        }
+    }
 };
 
 /*
 class Date
 {
 public:
-	int					myDaysFromEpoch;
+        int					myDaysFromEpoch;
 };
 */
