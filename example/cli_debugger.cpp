@@ -20,10 +20,16 @@ void runDebugger()
         try
         {
             Event exprTrees = parse(evtStr);
+
+            // Not essential but just to give any variables reasonable index values.
+            VarIndexer indexer;
+            for (auto& exprTree : exprTrees)
+                indexer.visit(exprTree);
+
             for (const auto& exprTree : exprTrees)
             {
                 Debugger debug;
-                exprTree->acceptVisitor(debug);
+                debug.visit(exprTree);
                 cout << debug.getString() << endl;
             }
         }
