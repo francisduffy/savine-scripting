@@ -11,6 +11,8 @@ ColumnLimit: 120
 NamespaceIndentation: All
 MaxEmptyLinesToKeep: 2
 FixNamespaceComments: false
+InsertNewlineAtEOF: true
+BreakBeforeBraces: Allman
 
 # Function declarations:
 

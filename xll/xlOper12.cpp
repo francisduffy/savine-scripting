@@ -8,7 +8,8 @@
 
 using namespace std;
 
-XLOper12 ErrorXLOper12(int e) {
+XLOper12 ErrorXLOper12(int e)
+{
     XLOper12 x;
     x.xltype = xltypeErr;
     x.val.err = e;
@@ -21,8 +22,10 @@ static int xll12_alloc_counter_return = 0;
 static int xll12_alloc_counter_string = 0;
 static int xll12_alloc_counter_array = 0;
 
-namespace {
-    void init_string(XLOper12& op, const char* cstr) {
+namespace
+{
+    void init_string(XLOper12& op, const char* cstr)
+    {
         op.xltype = xltypeStr | xlbitDLLFree;
         op.val.str = 0;
 
@@ -37,14 +40,17 @@ namespace {
     }
 }
 
-XLOper12::XLOper12(const char* str) {
+XLOper12::XLOper12(const char* str)
+{
     init_string(*this, str);
 }
-XLOper12::XLOper12(const std::string& str) {
+XLOper12::XLOper12(const std::string& str)
+{
     init_string(*this, str.c_str());
 }
 
-XLOper12::XLOper12(unsigned int rows, unsigned int columns) {
+XLOper12::XLOper12(unsigned int rows, unsigned int columns)
+{
     xltype = xltypeMulti | xlbitDLLFree;
     val.array.rows = (unsigned short)rows;
     val.array.columns = (unsigned short)columns;
@@ -55,21 +61,24 @@ XLOper12::XLOper12(unsigned int rows, unsigned int columns) {
 
 // ----------------------------------------------------------------------------
 
-XLOper12::operator double() const {
+XLOper12::operator double() const
+{
     if (Type() != xltypeNum)
         return 0.0;
 
     return val.num;
 }
 
-XLOper12::operator bool() const {
+XLOper12::operator bool() const
+{
     if (Type() == xltypeMissing || Type() == xltypeNil)
         return false;
 
     return val.xbool ? true : false;
 }
 
-XLOper12::operator std::string() const {
+XLOper12::operator std::string() const
+{
     if (Type() != xltypeStr)
         return "";
 
@@ -84,20 +93,24 @@ XLOper12::operator std::string() const {
     return res;
 }
 
-XLOper12& XLOper12::operator()(unsigned int row, unsigned int column) {
+XLOper12& XLOper12::operator()(unsigned int row, unsigned int column)
+{
     if (Type() != xltypeMulti || (RW)row >= val.array.rows || (COL)column >= val.array.columns)
         throw WORD(xlretAbort);
     return (XLOper12&)val.array.lparray[row * val.array.columns + column];
 }
 
-const XLOper12& XLOper12::operator()(unsigned int row, unsigned int column) const {
+const XLOper12& XLOper12::operator()(unsigned int row, unsigned int column) const
+{
     if (Type() != xltypeMulti || (RW)row >= val.array.rows || (COL)column >= val.array.columns)
         throw WORD(xlretAbort);
     return (XLOper12&)val.array.lparray[row * val.array.columns + column];
 }
-const XLOper12& XLOper12::operator()(unsigned int rank) const {
+const XLOper12& XLOper12::operator()(unsigned int rank) const
+{
     // case single value
-    if (Type() != xltypeMulti) {
+    if (Type() != xltypeMulti)
+    {
         if (rank == 0)
             return *this;
         else
@@ -111,33 +124,40 @@ const XLOper12& XLOper12::operator()(unsigned int rank) const {
     return (XLOper12&)val.array.lparray[rank];
 }
 
-int XLOper12::Type() const {
+int XLOper12::Type() const
+{
     return xltype & ~(xlbitXLFree | xlbitDLLFree);
 }
 
-unsigned int XLOper12::Rows() const {
+unsigned int XLOper12::Rows() const
+{
     return Type() == xltypeMulti ? (unsigned int)val.array.rows : (unsigned int)0;
 }
 
-unsigned int XLOper12::Cols() const {
+unsigned int XLOper12::Cols() const
+{
     return Type() == xltypeMulti ? (unsigned int)val.array.columns : (unsigned int)0;
 }
 
-unsigned int XLOper12::Size() const {
+unsigned int XLOper12::Size() const
+{
     return max(1u, Rows() * Cols());
 }
 
 // ----------------------------------------------------------------------------
 
-XLOper12::~XLOper12() {
+XLOper12::~XLOper12()
+{
     bool bFreeByExcel = ((xltype & xlbitXLFree) != 0);
     bool bFreeByDll = ((xltype & xlbitDLLFree) != 0);
     assert(!(bFreeByExcel && bFreeByDll));      // exclusive ownership
     assert(bFreeByExcel || bFreeByDll || true); // ownership expected
 
-    if (bFreeByExcel) {
+    if (bFreeByExcel)
+    {
         bool bNeedsFreeing = xltype == xltypeStr || xltype == xltypeMulti || xltype == xltypeRef;
-        if (bNeedsFreeing) {
+        if (bNeedsFreeing)
+        {
             WORD xlret = Excel12(xlFree, 0, 1, this);
             if (xlret != xlretSuccess)
                 throw xlret;
@@ -145,14 +165,17 @@ XLOper12::~XLOper12() {
     }
 }
 
-void XLOper12::ExplicitFree() {
+void XLOper12::ExplicitFree()
+{
     bool bFreeByExcel = ((xltype & xlbitXLFree) != 0);
     bool bFreeByDll = ((xltype & xlbitDLLFree) != 0);
     assert(!(bFreeByExcel && bFreeByDll));
     assert(bFreeByExcel || bFreeByDll || true);
 
-    if (bFreeByDll) {
-        switch (Type()) {
+    if (bFreeByDll)
+    {
+        switch (Type())
+        {
 
             case xltypeErr:
                 return;
@@ -166,8 +189,10 @@ void XLOper12::ExplicitFree() {
 
             case xltypeMulti:
                 int n = val.array.rows * val.array.columns;
-                for (int i = 0; i < n; i++) {
-                    if (val.array.lparray[i].xltype & xltypeStr) {
+                for (int i = 0; i < n; i++)
+                {
+                    if (val.array.lparray[i].xltype & xltypeStr)
+                    {
                         delete[] val.array.lparray[i].val.str;
                         val.array.lparray[i].val.str = NULL;
                         xll12_alloc_counter_string--;
@@ -185,7 +210,8 @@ void XLOper12::ExplicitFree() {
     }
 }
 
-XLOper12* return_xloper_raw_ptr(XLOper12& val) {
+XLOper12* return_xloper_raw_ptr(XLOper12& val)
+{
     XLOper12* ret = new XLOper12();
     (*ret) = val;
     (*ret).xltype = (*ret).xltype | xlbitDLLFree;

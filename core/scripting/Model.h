@@ -23,7 +23,8 @@ As long as this comment is preserved at the top of the file
 
 //  Base model for Monte-Carlo simulations
 template <class T>
-struct Model {
+struct Model
+{
     // Clone
     virtual unique_ptr<Model> clone() const = 0;
 
@@ -41,7 +42,8 @@ struct Model {
 };
 
 template <class T>
-class SimpleBlackScholes : public Model<T> {
+class SimpleBlackScholes : public Model<T>
+{
     Date myToday;
     T mySpot;
     T myRate;
@@ -55,7 +57,8 @@ class SimpleBlackScholes : public Model<T> {
 
   private:
     // Calculate all deterministic discount factors
-    void calcDf(vector<T>& dfs) const {
+    void calcDf(vector<T>& dfs) const
+    {
         for (size_t i = 0; i < myTimes.size(); ++i)
             dfs[i] = exp(myRate * myTimes[i]);
     }
@@ -63,7 +66,9 @@ class SimpleBlackScholes : public Model<T> {
   public:
     // Construct with T0, S0, vol and rate
     SimpleBlackScholes(const Date& today, const double spot, const double vol, const double rate)
-    : myToday(today), mySpot(spot), myVol(vol), myRate(rate), myDrift(-rate + 0.5 * vol * vol) {}
+    : myToday(today), mySpot(spot), myVol(vol), myRate(rate), myDrift(-rate + 0.5 * vol * vol)
+    {
+    }
 
     // Clone
     virtual unique_ptr<Model> clone() const override { return unique_ptr<Model>(new SimpleBlackScholes(*this)); }
@@ -74,20 +79,24 @@ class SimpleBlackScholes : public Model<T> {
     const T& vol() { return myVol; }
 
     // Initialize simulation dates
-    void initSimDates(const vector<Date>& simDates) override {
+    void initSimDates(const vector<Date>& simDates) override
+    {
         myTime0 = simDates[0] == myToday;
 
         // Fill array of times
-        for (auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt) {
+        for (auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt)
+        {
             myTimes.push_back(double(*dateIt - myToday) / 365);
         }
         myDt.resize(myTimes.size());
         myDt[0] = myTimes[0];
-        for (size_t i = 1; i < myTimes.size(); ++i) {
+        for (size_t i = 1; i < myTimes.size(); ++i)
+        {
             myDt[i] = myTimes[i] - myTimes[i - 1];
         }
         mySqrtDt.resize(myTimes.size());
-        for (size_t i = 0; i < myTimes.size(); ++i) {
+        for (size_t i = 0; i < myTimes.size(); ++i)
+        {
             mySqrtDt[i] = sqrt(myDt[i]);
         }
     }
@@ -99,7 +108,8 @@ class SimpleBlackScholes : public Model<T> {
     void applySDE(const vector<double>& G, //  Gaussian numbers, dimension dim()
                   vector<T>& spots,        //  Populate spots for each event date
                   vector<T>& numeraires)   //  Populate numeraire for each event date
-        const override {
+        const override
+    {
         //  Compute discount factors
         calcDf(numeraires);
         //  Note the ineffiency: in this case, numeraires could be computed only once
@@ -111,14 +121,16 @@ class SimpleBlackScholes : public Model<T> {
         spots[0] = myTime0 ? mySpot : mySpot * exp(-myDrift * myDt[0] + myVol * mySqrtDt[0] * G[step++]);
 
         // All steps
-        for (size_t i = 1; i < myTimes.size(); ++i) {
+        for (size_t i = 1; i < myTimes.size(); ++i)
+        {
             spots[i] = spots[i - 1] * exp(-myDrift * myDt[i] + myVol * mySqrtDt[i] * G[step++]);
         }
     }
 };
 
 template <class T>
-class SimpleBachelier : public Model<T> {
+class SimpleBachelier : public Model<T>
+{
     Date myToday;
     T mySpot;
     T myRate;
@@ -131,7 +143,8 @@ class SimpleBachelier : public Model<T> {
 
   private:
     // Calculate all deterministic discount factors
-    void calcDf(vector<T>& dfs) const {
+    void calcDf(vector<T>& dfs) const
+    {
         for (size_t i = 0; i < myTimes.size(); ++i)
             dfs[i] = exp(myRate * myTimes[i]);
     }
@@ -139,7 +152,9 @@ class SimpleBachelier : public Model<T> {
   public:
     // Construct with T0, S0, vol and rate
     SimpleBachelier(const Date& today, const double spot, const double vol, const double rate)
-    : myToday(today), mySpot(spot), myVol(vol), myRate(rate) {}
+    : myToday(today), mySpot(spot), myVol(vol), myRate(rate)
+    {
+    }
 
     // Clone
     virtual unique_ptr<Model> clone() const override { return unique_ptr<Model>(new SimpleBachelier(*this)); }
@@ -150,20 +165,24 @@ class SimpleBachelier : public Model<T> {
     const T& vol() { return myVol; }
 
     // Initialize simulation dates
-    void initSimDates(const vector<Date>& simDates) override {
+    void initSimDates(const vector<Date>& simDates) override
+    {
         myTime0 = simDates[0] == myToday;
 
         // Fill array of times
-        for (auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt) {
+        for (auto dateIt = simDates.begin(); dateIt != simDates.end(); ++dateIt)
+        {
             myTimes.push_back(double(*dateIt - myToday) / 365);
         }
         myDt.resize(myTimes.size());
         myDt[0] = myTimes[0];
-        for (size_t i = 1; i < myTimes.size(); ++i) {
+        for (size_t i = 1; i < myTimes.size(); ++i)
+        {
             myDt[i] = myTimes[i] - myTimes[i - 1];
         }
         mySqrtDt.resize(myTimes.size());
-        for (size_t i = 0; i < myTimes.size(); ++i) {
+        for (size_t i = 0; i < myTimes.size(); ++i)
+        {
             mySqrtDt[i] = sqrt(myDt[i]);
         }
     }
@@ -175,7 +194,8 @@ class SimpleBachelier : public Model<T> {
     void applySDE(const vector<double>& G, //  Gaussian numbers, dimension dim()
                   vector<T>& spots,        //  Populate spots for each event date
                   vector<T>& numeraires)   //  Populate numeraire for each event date
-        const override {
+        const override
+    {
         //  Compute discount factors
         calcDf(numeraires);
         //  Note the ineffiency: in this case, numeraires could be computed only once
@@ -184,24 +204,28 @@ class SimpleBachelier : public Model<T> {
         size_t step = 0;
 
         //  If rate ~0 the dynamics is simpler and can be simulated more efficiently
-        if (fabs(myRate) < 0.0001) {
+        if (fabs(myRate) < 0.0001)
+        {
             // First step
             spots[0] = myTime0 ? mySpot : mySpot + myVol * mySqrtDt[0] * G[step++];
 
             // All steps
-            for (size_t i = 1; i < myTimes.size(); ++i) {
+            for (size_t i = 1; i < myTimes.size(); ++i)
+            {
                 spots[i] = spots[i - 1] + myVol * mySqrtDt[i] * G[step++];
             }
         }
         //  General dynamics with non-zero rates
-        else {
+        else
+        {
             // First step
             spots[0] = myTime0 ? mySpot :
                                  mySpot * exp(myRate * myDt[0]) +
                                      myVol * sqrt((exp(2 * myRate * myDt[0]) - 1) / (2 * myRate)) * G[step++];
 
             // All steps
-            for (size_t i = 1; i < myTimes.size(); ++i) {
+            for (size_t i = 1; i < myTimes.size(); ++i)
+            {
                 spots[i] = spots[i - 1] * exp(myRate * myDt[i]) +
                            myVol * sqrt((exp(2 * myRate * myDt[i]) - 1) / (2 * myRate)) * G[step++];
             }
@@ -210,19 +234,22 @@ class SimpleBachelier : public Model<T> {
 };
 
 template <class T>
-class MonteCarloSimulator {
+class MonteCarloSimulator
+{
     RandomGen& myRandomGen;
     Model<T>& myModel;
 
   public:
     MonteCarloSimulator(Model<T>& model, RandomGen& ranGen) : myRandomGen(ranGen), myModel(model) {}
 
-    void init(const vector<Date>& simDates) {
+    void init(const vector<Date>& simDates)
+    {
         myModel.initSimDates(simDates);
         myRandomGen.init(myModel.dim());
     }
 
-    void simulateOnePath(vector<T>& spots, vector<T>& numeraires) {
+    void simulateOnePath(vector<T>& spots, vector<T>& numeraires)
+    {
         myRandomGen.genNextNormVec();
         myModel.applySDE(myRandomGen.getNorm(), spots, numeraires);
     }
@@ -230,14 +257,16 @@ class MonteCarloSimulator {
 
 //  Model interface for communication with script
 template <class T>
-struct ScriptModelApi {
+struct ScriptModelApi
+{
     virtual void initForScripting(const vector<Date>& eventDates) = 0;
 
     virtual void nextScenario(Scenario<T>& s) = 0;
 };
 
 template <class T>
-class ScriptSimulator : public MonteCarloSimulator<T>, public ScriptModelApi<T> {
+class ScriptSimulator : public MonteCarloSimulator<T>, public ScriptModelApi<T>
+{
 
     vector<T> myTempSpots;
     vector<T> myTempNumeraires;
@@ -245,17 +274,20 @@ class ScriptSimulator : public MonteCarloSimulator<T>, public ScriptModelApi<T> 
   public:
     ScriptSimulator(Model<T>& model, RandomGen& ranGen) : MonteCarloSimulator(model, ranGen) {}
 
-    void initForScripting(const vector<Date>& eventDates) override {
+    void initForScripting(const vector<Date>& eventDates) override
+    {
         MonteCarloSimulator::init(eventDates);
         myTempSpots.resize(eventDates.size());
         myTempNumeraires.resize(eventDates.size());
     }
 
-    void nextScenario(Scenario<T>& s) override {
+    void nextScenario(Scenario<T>& s) override
+    {
         MonteCarloSimulator::simulateOnePath(myTempSpots, myTempNumeraires);
 
         //  Note the inefficiency
-        for (size_t i = 0; i < s.size(); ++i) {
+        for (size_t i = 0; i < s.size(); ++i)
+        {
             s[i].spot = myTempSpots[i];
             s[i].numeraire = myTempNumeraires[i];
         }
@@ -276,7 +308,8 @@ inline void simpleBsScriptVal(const Date& today,
                               const bool skipDoms, // Skip domains (unless fuzzy)
                               // Results
                               vector<string>& varNames,
-                              vector<double>& varVals) {
+                              vector<double>& varVals)
+{
     if (events.begin()->first < today)
         throw runtime_error("Events in the past are disallowed");
 
@@ -311,13 +344,15 @@ inline void simpleBsScriptVal(const Date& today,
     varVals.resize(varNames.size(), 0.0);
 
     // Loop over simulations
-    for (size_t i = 0; i < numSim; ++i) {
+    for (size_t i = 0; i < numSim; ++i)
+    {
         // Generate next scenario into scen
         simulator.nextScenario(*scen);
         // Evaluate product
         prd.evaluate(*scen, *eval);
         // Update results
-        for (size_t v = 0; v < varVals.size(); ++v) {
+        for (size_t v = 0; v < varVals.size(); ++v)
+        {
             varVals[v] += eval->varVals()[v] / numSim;
         }
     }

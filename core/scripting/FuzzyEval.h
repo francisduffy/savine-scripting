@@ -22,7 +22,8 @@ As long as this comment is preserved at the top of the file
 // The fuzzy evaluator
 
 template <class T>
-class FuzzyEvaluator : public Evaluator<T> {
+class FuzzyEvaluator : public Evaluator<T>
+{
     // Default smoothing factor for conditions that don't override it
     double myDefEps;
 
@@ -38,7 +39,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     size_t myNestedIfLvl;
 
     // Pop the top 2 numbers of the fuzzy condition stack
-    pair<T, T> pop2f() {
+    pair<T, T> pop2f()
+    {
         pair<T, T> res;
         res.first = myFuzzyStack.top();
         myFuzzyStack.pop();
@@ -48,7 +50,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     }
 
     // Call Spread (-eps/2,+eps/2)
-    static T cSpr(const T x, const double eps) {
+    static T cSpr(const T x, const double eps)
+    {
         const double halfEps = 0.5 * eps;
 
         if (x < -halfEps)
@@ -60,7 +63,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     }
 
     // Call Spread (lb,rb)
-    static T cSpr(const T x, const double lb, const double rb) {
+    static T cSpr(const T x, const double lb, const double rb)
+    {
         if (x < lb)
             return 0.0;
         else if (x > rb)
@@ -70,7 +74,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     }
 
     // Butterfly (-eps/2,+eps/2)
-    static T bFly(const T x, const double eps) {
+    static T bFly(const T x, const double eps)
+    {
         const double halfEps = 0.5 * eps;
 
         if (x < -halfEps || x > halfEps)
@@ -80,7 +85,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     }
 
     // Butterfly (lb,0,rb)
-    static T bFly(const T x, const double lb, const double rb) {
+    static T bFly(const T x, const double lb, const double rb)
+    {
         if (x < lb || x > rb)
             return 0.0;
         else if (x < 0.0)
@@ -91,7 +97,8 @@ class FuzzyEvaluator : public Evaluator<T> {
 
   public:
     FuzzyEvaluator(const size_t nVar, const size_t maxNestedIfs, const double defEps = 0)
-    : Evaluator(nVar), myDefEps(defEps), myVarStore0(maxNestedIfs), myVarStore1(maxNestedIfs), myNestedIfLvl(0) {
+    : Evaluator(nVar), myDefEps(defEps), myVarStore0(maxNestedIfs), myVarStore1(maxNestedIfs), myNestedIfLvl(0)
+    {
         for (auto& varStore : myVarStore0)
             varStore.resize(nVar);
         for (auto& varStore : myVarStore1)
@@ -102,13 +109,15 @@ class FuzzyEvaluator : public Evaluator<T> {
 
     FuzzyEvaluator(const FuzzyEvaluator& rhs)
     : Evaluator(rhs), myDefEps(rhs.myDefEps), myVarStore0(rhs.myVarStore0.size()), myVarStore1(rhs.myVarStore1.size()),
-      myNestedIfLvl(0) {
+      myNestedIfLvl(0)
+    {
         for (auto& varStore : myVarStore0)
             varStore.resize(myVariables.size());
         for (auto& varStore : myVarStore1)
             varStore.resize(myVariables.size());
     }
-    FuzzyEvaluator& operator=(const FuzzyEvaluator& rhs) {
+    FuzzyEvaluator& operator=(const FuzzyEvaluator& rhs)
+    {
         if (this == &rhs)
             return *this;
         Evaluator::operator=(rhs);
@@ -125,8 +134,11 @@ class FuzzyEvaluator : public Evaluator<T> {
 
     FuzzyEvaluator(FuzzyEvaluator&& rhs)
     : Evaluator(move(rhs)), myDefEps(rhs.myDefEps), myVarStore0(move(rhs.myVarStore0)),
-      myVarStore1(move(rhs.myVarStore1)), myNestedIfLvl(0) {}
-    FuzzyEvaluator& operator=(FuzzyEvaluator&& rhs) {
+      myVarStore1(move(rhs.myVarStore1)), myNestedIfLvl(0)
+    {
+    }
+    FuzzyEvaluator& operator=(FuzzyEvaluator&& rhs)
+    {
         Evaluator::operator=(move(rhs));
         myDefEps = rhs.myDefEps;
         myVarStore0 = move(rhs.myVarStore0);
@@ -141,7 +153,8 @@ class FuzzyEvaluator : public Evaluator<T> {
     // Overriden visitors
 
     // If
-    void visitIf(const NodeIf& node) override {
+    void visitIf(const NodeIf& node) override
+    {
         // Last "if true" statement index
         const size_t lastTrueStat = node.firstElse == -1 ? node.arguments.size() - 1 : node.firstElse - 1;
 
@@ -154,20 +167,23 @@ class FuzzyEvaluator : public Evaluator<T> {
         myFuzzyStack.pop();
 
         // Absolutely true
-        if (dt > ONEMINUSEPS) {
+        if (dt > ONEMINUSEPS)
+        {
             // Eval "if true" statements
             for (size_t i = 1; i <= lastTrueStat; ++i)
                 node.arguments[i]->acceptVisitor(*this);
         }
         // Absolutely false
-        else if (dt < EPS) {
+        else if (dt < EPS)
+        {
             // Eval "if false" statements if any
             if (node.firstElse != -1)
                 for (size_t i = node.firstElse; i < node.arguments.size(); ++i)
                     node.arguments[i]->acceptVisitor(*this);
         }
         // Fuzzy
-        else {
+        else
+        {
             // Record values of variables to be changed
             for (auto idx : node.myAffectedVars)
                 myVarStore0[myNestedIfLvl - 1][idx] = myVariables[idx];
@@ -177,7 +193,8 @@ class FuzzyEvaluator : public Evaluator<T> {
                 node.arguments[i]->acceptVisitor(*this);
 
             // Record and reset values of variables to be changed
-            for (auto idx : node.myAffectedVars) {
+            for (auto idx : node.myAffectedVars)
+            {
                 myVarStore1[myNestedIfLvl - 1][idx] = myVariables[idx];
                 myVariables[idx] = myVarStore0[myNestedIfLvl - 1][idx];
             }
@@ -201,18 +218,21 @@ class FuzzyEvaluator : public Evaluator<T> {
     void visitFalse(const NodeFalse& node) override { myFuzzyStack.push(0.0); }
 
     // Equality
-    void visitEqual(const NodeEqual& node) override {
+    void visitEqual(const NodeEqual& node) override
+    {
         // Evaluate expression to be compared to 0
         node.arguments[0]->acceptVisitor(*this);
         const T expr = myDstack.top();
         myDstack.pop();
 
         // Discrete case: 0 is a singleton in expr's domain
-        if (node.myDiscrete) {
+        if (node.myDiscrete)
+        {
             myFuzzyStack.push(bFly(expr, node.myLb, node.myRb));
         }
         // Continuous case: 0 is part of expr's continuous domain
-        else {
+        else
+        {
             // Effective epsilon: take default unless overwritten on the node
             double eps = node.myEps < 0 ? myDefEps : node.myEps;
 
@@ -225,7 +245,8 @@ class FuzzyEvaluator : public Evaluator<T> {
 
     // For visiting superior and supEqual
     template <class NodeSup>
-    void visitSupT(const NodeSup& node) {
+    void visitSupT(const NodeSup& node)
+    {
         // Evaluate expression to be compared to 0
         node.arguments[0]->acceptVisitor(*this);
         const T expr = myDstack.top();
@@ -235,12 +256,14 @@ class FuzzyEvaluator : public Evaluator<T> {
         // Either 0 is a singleton in expr's domain
         // Or 0 is not part of expr's domain, but expr's domain has subdomains left and right of 0
         // otherwise the condition would be always true/false
-        if (node.myDiscrete) {
+        if (node.myDiscrete)
+        {
             // Call spread on the right
             myFuzzyStack.push(cSpr(expr, node.myLb, node.myRb));
         }
         // Continuous case: 0 is part of expr's continuous domain
-        else {
+        else
+        {
             // Effective epsilon: take default unless overwritten on the node
             const double eps = node.myEps < 0 ? myDefEps : node.myEps;
 
@@ -252,19 +275,22 @@ class FuzzyEvaluator : public Evaluator<T> {
     void visitSupEqual(const NodeSupEqual& node) override { visitSupT(node); }
 
     // Negation
-    void visitNot(const NodeNot& node) override {
+    void visitNot(const NodeNot& node) override
+    {
         evalArgs(node);
         myFuzzyStack.top() = 1.0 - myFuzzyStack.top();
     }
 
     // Combinators
     // Hard coded proba stlye and->dt(lhs)*dt(rhs), or->dt(lhs)+dt(rhs)-dt(lhs)*dt(rhs)
-    void visitAnd(const NodeAnd& node) override {
+    void visitAnd(const NodeAnd& node) override
+    {
         evalArgs(node);
         const auto& args = pop2f();
         myFuzzyStack.push(args.first * args.second);
     }
-    void visitOr(const NodeOr& node) override {
+    void visitOr(const NodeOr& node) override
+    {
         evalArgs(node);
         const auto& args = pop2f();
         myFuzzyStack.push(args.first + args.second - args.first * args.second);

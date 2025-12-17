@@ -8,16 +8,19 @@ using namespace std;
 
 extern const char* xll_last_call;
 
-struct XLOper12 : public XLOPER12 {
+struct XLOper12 : public XLOPER12
+{
 
     XLOper12() { xltype = xltypeNil; }
 
-    explicit XLOper12(double num) {
+    explicit XLOper12(double num)
+    {
         xltype = xltypeNum;
         val.num = num;
     }
 
-    explicit XLOper12(bool Bool) {
+    explicit XLOper12(bool Bool)
+    {
         xltype = xltypeBool;
         val.xbool = (unsigned short)(Bool ? TRUE : FALSE);
     }

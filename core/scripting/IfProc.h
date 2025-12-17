@@ -29,7 +29,8 @@ As long as this comment is preserved at the top of the file
 #include <memory>
 #include <set>
 
-class IfProcessor : public Visitor {
+class IfProcessor : public Visitor
+{
     // Top of the stack: current (possibly nested) if being processed
     // Each element in stack: set of indices of variables modified by the corresponding if and nested ifs
     quickStack<set<size_t>> myVarStack;
@@ -48,7 +49,8 @@ class IfProcessor : public Visitor {
 
     // Visitors
 
-    void visitIf(NodeIf& node) override {
+    void visitIf(NodeIf& node) override
+    {
         // Increase nested if level
         ++myNestedIfLvl;
         if (myNestedIfLvl > myMaxNestedIfs)
@@ -78,19 +80,22 @@ class IfProcessor : public Visitor {
                  inserter(myVarStack.top(), myVarStack.top().end()));
     }
 
-    void visitAssign(NodeAssign& node) override {
+    void visitAssign(NodeAssign& node) override
+    {
         // Visit the lhs var
         if (myNestedIfLvl)
             node.arguments[0]->acceptVisitor(*this);
     }
 
-    void visitPays(NodePays& node) override {
+    void visitPays(NodePays& node) override
+    {
         // Visit the lhs var
         if (myNestedIfLvl)
             node.arguments[0]->acceptVisitor(*this);
     }
 
-    void visitVar(NodeVar& node) override {
+    void visitVar(NodeVar& node) override
+    {
         // Insert the var idx
         if (myNestedIfLvl)
             myVarStack.top().insert(node.index);

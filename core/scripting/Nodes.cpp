@@ -18,245 +18,299 @@ As long as this comment is preserved at the top of the file
 #include "Visitor.h"
 
 // Collection of statements
-void NodeCollect::acceptVisitor(Visitor& visitor) {
+void NodeCollect::acceptVisitor(Visitor& visitor)
+{
     visitor.visitCollect(*this);
 }
 
 // True
-void NodeTrue::acceptVisitor(Visitor& visitor) {
+void NodeTrue::acceptVisitor(Visitor& visitor)
+{
     visitor.visitTrue(*this);
 }
 
 // False
-void NodeFalse::acceptVisitor(Visitor& visitor) {
+void NodeFalse::acceptVisitor(Visitor& visitor)
+{
     visitor.visitFalse(*this);
 }
 
 // Unary +/-
-void NodeUplus::acceptVisitor(Visitor& visitor) {
+void NodeUplus::acceptVisitor(Visitor& visitor)
+{
     visitor.visitUplus(*this);
 }
 
-void NodeUminus::acceptVisitor(Visitor& visitor) {
+void NodeUminus::acceptVisitor(Visitor& visitor)
+{
     visitor.visitUminus(*this);
 }
 
 // Math operators
-void NodeAdd::acceptVisitor(Visitor& visitor) {
+void NodeAdd::acceptVisitor(Visitor& visitor)
+{
     visitor.visitAdd(*this);
 }
 
-void NodeSubtract::acceptVisitor(Visitor& visitor) {
+void NodeSubtract::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSubtract(*this);
 }
 
-void NodeMult::acceptVisitor(Visitor& visitor) {
+void NodeMult::acceptVisitor(Visitor& visitor)
+{
     visitor.visitMult(*this);
 }
 
-void NodeDiv::acceptVisitor(Visitor& visitor) {
+void NodeDiv::acceptVisitor(Visitor& visitor)
+{
     visitor.visitDiv(*this);
 }
 
-void NodePow::acceptVisitor(Visitor& visitor) {
+void NodePow::acceptVisitor(Visitor& visitor)
+{
     visitor.visitPow(*this);
 }
 
 // Math functions
-void NodeLog::acceptVisitor(Visitor& visitor) {
+void NodeLog::acceptVisitor(Visitor& visitor)
+{
     visitor.visitLog(*this);
 }
 
-void NodeSqrt::acceptVisitor(Visitor& visitor) {
+void NodeSqrt::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSqrt(*this);
 }
 
-void NodeMax::acceptVisitor(Visitor& visitor) {
+void NodeMax::acceptVisitor(Visitor& visitor)
+{
     visitor.visitMax(*this);
 }
 
-void NodeMin::acceptVisitor(Visitor& visitor) {
+void NodeMin::acceptVisitor(Visitor& visitor)
+{
     visitor.visitMin(*this);
 }
 
 // Functional if
-void NodeSmooth::acceptVisitor(Visitor& visitor) {
+void NodeSmooth::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSmooth(*this);
 }
 
 // Comparators
-void NodeEqual::acceptVisitor(Visitor& visitor) {
+void NodeEqual::acceptVisitor(Visitor& visitor)
+{
     visitor.visitEqual(*this);
 }
 
-void NodeNot::acceptVisitor(Visitor& visitor) {
+void NodeNot::acceptVisitor(Visitor& visitor)
+{
     visitor.visitNot(*this);
 }
 
-void NodeSuperior::acceptVisitor(Visitor& visitor) {
+void NodeSuperior::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSuperior(*this);
 }
 
-void NodeSupEqual::acceptVisitor(Visitor& visitor) {
+void NodeSupEqual::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSupEqual(*this);
 }
 
 // And/or
 
-void NodeAnd::acceptVisitor(Visitor& visitor) {
+void NodeAnd::acceptVisitor(Visitor& visitor)
+{
     visitor.visitAnd(*this);
 }
 
-void NodeOr::acceptVisitor(Visitor& visitor) {
+void NodeOr::acceptVisitor(Visitor& visitor)
+{
     visitor.visitOr(*this);
 }
 
 // Assign, Pays
-void NodeAssign::acceptVisitor(Visitor& visitor) {
+void NodeAssign::acceptVisitor(Visitor& visitor)
+{
     visitor.visitAssign(*this);
 }
 
-void NodePays::acceptVisitor(Visitor& visitor) {
+void NodePays::acceptVisitor(Visitor& visitor)
+{
     visitor.visitPays(*this);
 }
 
 // Market access
-void NodeSpot::acceptVisitor(Visitor& visitor) {
+void NodeSpot::acceptVisitor(Visitor& visitor)
+{
     visitor.visitSpot(*this);
 }
 
 // If
-void NodeIf::acceptVisitor(Visitor& visitor) {
+void NodeIf::acceptVisitor(Visitor& visitor)
+{
     visitor.visitIf(*this);
 }
 
-void NodeConst::acceptVisitor(Visitor& visitor) {
+void NodeConst::acceptVisitor(Visitor& visitor)
+{
     visitor.visitConst(*this);
 }
 
-void NodeVar::acceptVisitor(Visitor& visitor) {
+void NodeVar::acceptVisitor(Visitor& visitor)
+{
     visitor.visitVar(*this);
 }
 
 // const
 
 // Collection of statements
-void NodeCollect::acceptVisitor(constVisitor& visitor) const {
+void NodeCollect::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitCollect(*this);
 }
 
 // True
-void NodeTrue::acceptVisitor(constVisitor& visitor) const {
+void NodeTrue::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitTrue(*this);
 }
 
 // False
-void NodeFalse::acceptVisitor(constVisitor& visitor) const {
+void NodeFalse::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitFalse(*this);
 }
 
 // Unary +/-
-void NodeUplus::acceptVisitor(constVisitor& visitor) const {
+void NodeUplus::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitUplus(*this);
 }
 
-void NodeUminus::acceptVisitor(constVisitor& visitor) const {
+void NodeUminus::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitUminus(*this);
 }
 
 // Math operators
-void NodeAdd::acceptVisitor(constVisitor& visitor) const {
+void NodeAdd::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitAdd(*this);
 }
 
-void NodeSubtract::acceptVisitor(constVisitor& visitor) const {
+void NodeSubtract::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSubtract(*this);
 }
 
-void NodeMult::acceptVisitor(constVisitor& visitor) const {
+void NodeMult::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitMult(*this);
 }
 
-void NodeDiv::acceptVisitor(constVisitor& visitor) const {
+void NodeDiv::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitDiv(*this);
 }
 
-void NodePow::acceptVisitor(constVisitor& visitor) const {
+void NodePow::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitPow(*this);
 }
 
 // Math functions
-void NodeLog::acceptVisitor(constVisitor& visitor) const {
+void NodeLog::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitLog(*this);
 }
 
-void NodeSqrt::acceptVisitor(constVisitor& visitor) const {
+void NodeSqrt::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSqrt(*this);
 }
 
-void NodeMax::acceptVisitor(constVisitor& visitor) const {
+void NodeMax::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitMax(*this);
 }
 
-void NodeMin::acceptVisitor(constVisitor& visitor) const {
+void NodeMin::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitMin(*this);
 }
 
 // Functional if
-void NodeSmooth::acceptVisitor(constVisitor& visitor) const {
+void NodeSmooth::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSmooth(*this);
 }
 
 // Comparators
-void NodeEqual::acceptVisitor(constVisitor& visitor) const {
+void NodeEqual::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitEqual(*this);
 }
 
-void NodeNot::acceptVisitor(constVisitor& visitor) const {
+void NodeNot::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitNot(*this);
 }
 
-void NodeSuperior::acceptVisitor(constVisitor& visitor) const {
+void NodeSuperior::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSuperior(*this);
 }
 
-void NodeSupEqual::acceptVisitor(constVisitor& visitor) const {
+void NodeSupEqual::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSupEqual(*this);
 }
 
 // And/or
 
-void NodeAnd::acceptVisitor(constVisitor& visitor) const {
+void NodeAnd::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitAnd(*this);
 }
 
-void NodeOr::acceptVisitor(constVisitor& visitor) const {
+void NodeOr::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitOr(*this);
 }
 
 // Assign, Pays
-void NodeAssign::acceptVisitor(constVisitor& visitor) const {
+void NodeAssign::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitAssign(*this);
 }
 
-void NodePays::acceptVisitor(constVisitor& visitor) const {
+void NodePays::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitPays(*this);
 }
 
 // Market access
-void NodeSpot::acceptVisitor(constVisitor& visitor) const {
+void NodeSpot::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitSpot(*this);
 }
 
 // If
-void NodeIf::acceptVisitor(constVisitor& visitor) const {
+void NodeIf::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitIf(*this);
 }
 
-void NodeConst::acceptVisitor(constVisitor& visitor) const {
+void NodeConst::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitConst(*this);
 }
 
-void NodeVar::acceptVisitor(constVisitor& visitor) const {
+void NodeVar::acceptVisitor(constVisitor& visitor) const
+{
     visitor.visitVar(*this);
 }

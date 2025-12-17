@@ -25,7 +25,8 @@ static XLOper12 error = ErrorNotAvailable12;
 
 // Wrappers
 
-extern "C" __declspec(dllexport) double xMultiply2Numbers(double x, double y) {
+extern "C" __declspec(dllexport) double xMultiply2Numbers(double x, double y)
+{
     return x * y;
 }
 
@@ -46,9 +47,11 @@ extern "C" __declspec(dllexport) XLOper12* TestScript(XLOper12* xToday,
                                                       XLOper12* xFuzzy,
                                                       XLOper12* xEps,
                                                       XLOper12* xSkipDoms,
-                                                      XLOper12* xNormal) {
+                                                      XLOper12* xNormal)
+{
 
-    try {
+    try
+    {
 
         Date today = int(*xToday);
         double spot = double(*xSpot);
@@ -65,7 +68,8 @@ extern "C" __declspec(dllexport) XLOper12* TestScript(XLOper12* xToday,
             throw exception();
 
         map<Date, string> events;
-        for (unsigned i = 0; i < nEvt; ++i) {
+        for (unsigned i = 0; i < nEvt; ++i)
+        {
             if (int((*xEvtDates)(i)) > 0)
                 events[int((*xEvtDates)(i))] += string((*xEvts)(i)) + " ";
         }
@@ -89,18 +93,22 @@ extern "C" __declspec(dllexport) XLOper12* TestScript(XLOper12* xToday,
 
         XLOper12 res(varNames.size(), 2);
 
-        for (unsigned i = 0; i < varNames.size(); ++i) {
+        for (unsigned i = 0; i < varNames.size(); ++i)
+        {
             res(i, 0) = XLOper12(varNames[i]);
             res(i, 1) = XLOper12(varVals[i]);
         }
 
         return return_xloper_raw_ptr(res);
-
-    } catch (const exception& e) {
+    }
+    catch (const exception& e)
+    {
 
         XLOper12 res(e.what());
         return return_xloper_raw_ptr(res);
-    } catch (...) {
+    }
+    catch (...)
+    {
 
         return &error;
     }
@@ -108,7 +116,8 @@ extern "C" __declspec(dllexport) XLOper12* TestScript(XLOper12* xToday,
 
 // Registers
 
-extern "C" __declspec(dllexport) int xlAutoOpen(void) {
+extern "C" __declspec(dllexport) int xlAutoOpen(void)
+{
     XLOPER12 xDLL;
 
     Excel12f(xlGetName, &xDLL, 0);

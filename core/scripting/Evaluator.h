@@ -24,7 +24,8 @@ As long as this comment is preserved at the top of the file
 #include <vector>
 
 template <class T>
-class Evaluator : public constVisitor {
+class Evaluator : public constVisitor
+{
 
   protected:
     // State
@@ -45,13 +46,15 @@ class Evaluator : public constVisitor {
     size_t myCurEvt;
 
     // Visit arguments, right to left
-    void evalArgs(const Node& node) {
+    void evalArgs(const Node& node)
+    {
         for (auto it = node.arguments.rbegin(); it != node.arguments.rend(); ++it)
             (*it)->acceptVisitor(*this);
     }
 
     // Pop the top 2 numbers of the number stack
-    pair<T, T> pop2() {
+    pair<T, T> pop2()
+    {
         pair<T, T> res;
         res.first = myDstack.top();
         myDstack.pop();
@@ -61,7 +64,8 @@ class Evaluator : public constVisitor {
     }
 
     // Pop the top 2 bools of the bool stack
-    pair<bool, bool> pop2b() {
+    pair<bool, bool> pop2b()
+    {
         pair<bool, bool> res;
         res.first = myBstack.top();
         myBstack.pop();
@@ -79,7 +83,8 @@ class Evaluator : public constVisitor {
     // Copy/Move
 
     Evaluator(const Evaluator& rhs) : myVariables(rhs.myVariables) {}
-    Evaluator& operator=(const Evaluator& rhs) {
+    Evaluator& operator=(const Evaluator& rhs)
+    {
         if (this == &rhs)
             return *this;
         myVariables = rhs.myVariables;
@@ -87,13 +92,15 @@ class Evaluator : public constVisitor {
     }
 
     Evaluator(Evaluator&& rhs) : myVariables(move(rhs.myVariables)) {}
-    Evaluator& operator=(Evaluator&& rhs) {
+    Evaluator& operator=(Evaluator&& rhs)
+    {
         myVariables = move(rhs.myVariables);
         return *this;
     }
 
     // (Re-)initialize before evaluation in each scenario
-    virtual void init() {
+    virtual void init()
+    {
         for (auto& varIt : myVariables)
             varIt = 0.0;
         // Stacks should be empty, if this is not the case the empty them
@@ -125,27 +132,32 @@ class Evaluator : public constVisitor {
 
     // Binaries
 
-    void visitAdd(const NodeAdd& node) override {
+    void visitAdd(const NodeAdd& node) override
+    {
         evalArgs(node);
         const auto& args = pop2();
         myDstack.push(args.first + args.second);
     }
-    void visitSubtract(const NodeSubtract& node) override {
+    void visitSubtract(const NodeSubtract& node) override
+    {
         evalArgs(node);
         const auto& args = pop2();
         myDstack.push(args.first - args.second);
     }
-    void visitMult(const NodeMult& node) override {
+    void visitMult(const NodeMult& node) override
+    {
         evalArgs(node);
         const auto& args = pop2();
         myDstack.push(args.first * args.second);
     }
-    void visitDiv(const NodeDiv& node) override {
+    void visitDiv(const NodeDiv& node) override
+    {
         evalArgs(node);
         const auto& args = pop2();
         myDstack.push(args.first / args.second);
     }
-    void visitPow(const NodePow& node) override {
+    void visitPow(const NodePow& node) override
+    {
         evalArgs(node);
         const auto& args = pop2();
         myDstack.push(pow(args.first, args.second));
@@ -153,13 +165,15 @@ class Evaluator : public constVisitor {
 
     // Unaries
     void visitUplus(const NodeUplus& node) override { evalArgs(node); }
-    void visitUminus(const NodeUminus& node) override {
+    void visitUminus(const NodeUminus& node) override
+    {
         evalArgs(node);
         myDstack.top() *= -1;
     }
 
     // Functions
-    void visitLog(const NodeLog& node) override {
+    void visitLog(const NodeLog& node) override
+    {
         evalArgs(node);
 
         const T res = log(myDstack.top());
@@ -167,7 +181,8 @@ class Evaluator : public constVisitor {
 
         myDstack.push(res);
     }
-    void visitSqrt(const NodeSqrt& node) override {
+    void visitSqrt(const NodeSqrt& node) override
+    {
         evalArgs(node);
 
         const T res = sqrt(myDstack.top());
@@ -175,33 +190,38 @@ class Evaluator : public constVisitor {
 
         myDstack.push(res);
     }
-    void visitMax(const NodeMax& node) override {
+    void visitMax(const NodeMax& node) override
+    {
         evalArgs(node);
 
         T M = myDstack.top();
         myDstack.pop();
 
-        for (size_t i = 1; i < node.arguments.size(); ++i) {
+        for (size_t i = 1; i < node.arguments.size(); ++i)
+        {
             M = max(M, myDstack.top());
             myDstack.pop();
         }
 
         myDstack.push(M);
     }
-    void visitMin(const NodeMin& node) override {
+    void visitMin(const NodeMin& node) override
+    {
         evalArgs(node);
 
         T m = myDstack.top();
         myDstack.pop();
 
-        for (size_t i = 1; i < node.arguments.size(); ++i) {
+        for (size_t i = 1; i < node.arguments.size(); ++i)
+        {
             m = min(m, myDstack.top());
             myDstack.pop();
         }
 
         myDstack.push(m);
     }
-    void visitSmooth(const NodeSmooth& node) override {
+    void visitSmooth(const NodeSmooth& node) override
+    {
         // Eval the condition
         node.arguments[0]->acceptVisitor(*this);
         const T x = myDstack.top();
@@ -221,7 +241,8 @@ class Evaluator : public constVisitor {
             node.arguments[1]->acceptVisitor(*this);
 
         // Fuzzy
-        else {
+        else
+        {
             node.arguments[1]->acceptVisitor(*this);
             const T vPos = myDstack.top();
             myDstack.pop();
@@ -242,43 +263,50 @@ class Evaluator : public constVisitor {
     void visitTrue(const NodeTrue& node) override { myBstack.push(true); }
     void visitFalse(const NodeFalse& node) override { myBstack.push(false); }
 
-    void visitEqual(const NodeEqual& node) override {
+    void visitEqual(const NodeEqual& node) override
+    {
         evalArgs(node);
         const T res = myDstack.top();
         myDstack.pop();
         myBstack.push(fabs(res) < EPS);
     }
-    void visitNot(const NodeNot& node) override {
+    void visitNot(const NodeNot& node) override
+    {
         evalArgs(node);
         const bool res = myBstack.top();
         myBstack.pop();
         myBstack.push(!res);
     }
-    void visitSuperior(const NodeSuperior& node) override {
+    void visitSuperior(const NodeSuperior& node) override
+    {
         evalArgs(node);
         const T res = myDstack.top();
         myDstack.pop();
         myBstack.push(res > EPS);
     }
-    void visitSupEqual(const NodeSupEqual& node) override {
+    void visitSupEqual(const NodeSupEqual& node) override
+    {
         evalArgs(node);
         const T res = myDstack.top();
         myDstack.pop();
         myBstack.push(res > -EPS);
     }
-    void visitAnd(const NodeAnd& node) override {
+    void visitAnd(const NodeAnd& node) override
+    {
         evalArgs(node);
         const auto& args = pop2b();
         myBstack.push(args.first && args.second);
     }
-    void visitOr(const NodeOr& node) override {
+    void visitOr(const NodeOr& node) override
+    {
         evalArgs(node);
         const auto& args = pop2b();
         myBstack.push(args.first || args.second);
     }
 
     // Instructions
-    void visitIf(const NodeIf& node) override {
+    void visitIf(const NodeIf& node) override
+    {
         // Eval the condition
         node.arguments[0]->acceptVisitor(*this);
 
@@ -287,19 +315,25 @@ class Evaluator : public constVisitor {
         myBstack.pop();
 
         // Evaluate the relevant statements
-        if (isTrue) {
+        if (isTrue)
+        {
             const unsigned lastTrue = node.firstElse == -1 ? node.arguments.size() - 1 : node.firstElse - 1;
-            for (unsigned i = 1; i <= lastTrue; ++i) {
+            for (unsigned i = 1; i <= lastTrue; ++i)
+            {
                 node.arguments[i]->acceptVisitor(*this);
             }
-        } else if (node.firstElse != -1) {
-            for (unsigned i = node.firstElse; i < node.arguments.size(); ++i) {
+        }
+        else if (node.firstElse != -1)
+        {
+            for (unsigned i = node.firstElse; i < node.arguments.size(); ++i)
+            {
                 node.arguments[i]->acceptVisitor(*this);
             }
         }
     }
 
-    void visitAssign(const NodeAssign& node) override {
+    void visitAssign(const NodeAssign& node) override
+    {
         // Visit the LHS variable
         myLhsVar = true;
         node.arguments[0]->acceptVisitor(*this);
@@ -313,7 +347,8 @@ class Evaluator : public constVisitor {
         myDstack.pop();
     }
 
-    void visitPays(const NodePays& node) override {
+    void visitPays(const NodePays& node) override
+    {
         // Visit the LHS variable
         myLhsVar = true;
         node.arguments[0]->acceptVisitor(*this);
@@ -328,13 +363,15 @@ class Evaluator : public constVisitor {
     }
 
     // Variables and constants
-    void visitVar(const NodeVar& node) override {
+    void visitVar(const NodeVar& node) override
+    {
         // LHS?
         if (myLhsVar) // Write
         {
             // Record address in myLhsVarAdr
             myLhsVarAdr = &myVariables[node.index];
-        } else // Read
+        }
+        else // Read
         {
             // Push value onto the stack
             myDstack.push(myVariables[node.index]);

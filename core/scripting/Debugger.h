@@ -20,12 +20,14 @@ As long as this comment is preserved at the top of the file
 #include "Visitor.h"
 #include "utilities/quickStack.h"
 
-class Debugger : public constVisitor {
+class Debugger : public constVisitor
+{
     string myPrefix;
     quickStack<string> myStack;
 
     // The main function call from every node visitor
-    void debug(const Node& node, const string& nodeId) {
+    void debug(const Node& node, const string& nodeId)
+    {
         // One more tab
         myPrefix += '\t';
 
@@ -37,7 +39,8 @@ class Debugger : public constVisitor {
         myPrefix.pop_back();
 
         string str(myPrefix + nodeId);
-        if (!node.arguments.empty()) {
+        if (!node.arguments.empty())
+        {
             str += "(\n";
 
             // First argument, pushed last
@@ -47,12 +50,14 @@ class Debugger : public constVisitor {
                 str += myPrefix + ",\n";
 
             // Args 2 to n-1
-            for (size_t i = 1; i < node.arguments.size() - 1; ++i) {
+            for (size_t i = 1; i < node.arguments.size() - 1; ++i)
+            {
                 str += myStack.top() + myPrefix + ",\n";
                 myStack.pop();
             }
 
-            if (node.arguments.size() > 1) {
+            if (node.arguments.size() > 1)
+            {
                 // Last argument, pushed first
                 str += myStack.top();
                 myStack.pop();
@@ -87,51 +92,66 @@ class Debugger : public constVisitor {
     void visitMin(const NodeMin& node) override { debug(node, "MIN"); }
     void visitSmooth(const NodeSmooth& node) override { debug(node, "SMOOTH"); }
 
-    void visitEqual(const NodeEqual& node) override {
+    void visitEqual(const NodeEqual& node) override
+    {
         string s = "EQUALZERO";
 
-        if (!node.myDiscrete) {
+        if (!node.myDiscrete)
+        {
             s += "[CONT,EPS=" + to_string(node.myEps) + "]";
-        } else {
+        }
+        else
+        {
             s += "[DISCRETE,";
             s += "BOUNDS=" + to_string(node.myLb) + "," + to_string(node.myRb) + "]";
         }
         debug(node, s);
     }
 
-    void visitNot(const NodeNot& node) override {
+    void visitNot(const NodeNot& node) override
+    {
         string s = "NOT";
         debug(node, s);
     }
 
-    void visitSuperior(const NodeSuperior& node) override {
+    void visitSuperior(const NodeSuperior& node) override
+    {
         string s = "GTZERO";
-        if (!node.myDiscrete) {
+        if (!node.myDiscrete)
+        {
             s += "[CONT,EPS=" + to_string(node.myEps) + "]";
-        } else {
+        }
+        else
+        {
             s += "[DISCRETE,";
             s += "BOUNDS=" + to_string(node.myLb) + "," + to_string(node.myRb) + "]";
         }
         debug(node, s);
     }
 
-    void visitSupEqual(const NodeSupEqual& node) override {
+    void visitSupEqual(const NodeSupEqual& node) override
+    {
         string s = "GTEQUALZERO";
-        if (!node.myDiscrete) {
+        if (!node.myDiscrete)
+        {
             s += "[CONT,EPS=" + to_string(node.myEps) + "]";
-        } else {
+        }
+        else
+        {
             s += "[DISCRETE,";
             s += "BOUNDS=" + to_string(node.myLb) + "," + to_string(node.myRb) + "]";
         }
         debug(node, s);
     }
 
-    void visitAnd(const NodeAnd& node) override {
+    void visitAnd(const NodeAnd& node) override
+    {
         string s = "AND";
         debug(node, s);
     }
 
-    void visitOr(const NodeOr& node) override {
+    void visitOr(const NodeOr& node) override
+    {
         string s = "OR";
         debug(node, s);
     }
@@ -140,7 +160,8 @@ class Debugger : public constVisitor {
     void visitPays(const NodePays& node) override { debug(node, "PAYS"); }
     void visitSpot(const NodeSpot& node) override { debug(node, "SPOT"); }
 
-    void visitIf(const NodeIf& node) override {
+    void visitIf(const NodeIf& node) override
+    {
         string s = "IF";
         s += "[FIRSTELSE=" + to_string(node.firstElse) + "]";
 
@@ -151,7 +172,8 @@ class Debugger : public constVisitor {
     void visitFalse(const NodeFalse& node) override { debug(node, "FALSE"); }
 
     void visitConst(const NodeConst& node) override { debug(node, string("CONST[") + to_string(node.val) + ']'); }
-    void visitVar(const NodeVar& node) override {
+    void visitVar(const NodeVar& node) override
+    {
         debug(node, string("VAR[") + node.name + ',' + to_string(node.index) + ']');
     }
 };

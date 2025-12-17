@@ -6,7 +6,8 @@
 using namespace std;
 
 // Normal CDF (N in Black-Scholes)
-inline double normalCdf(const double x) {
+inline double normalCdf(const double x)
+{
     // checks
     if (x < -10.0)
         return 0.0;
@@ -39,7 +40,8 @@ inline double normalCdf(const double x) {
 }
 
 // Inverse CDF (for generation of Gaussians out of Uniforms)
-inline double invNormalCdf(const double p) {
+inline double invNormalCdf(const double p)
+{
     // to ensure symmetry
     if (p > 0.5)
         return -invNormalCdf(1.0 - p);
@@ -73,7 +75,8 @@ inline double invNormalCdf(const double p) {
     double r;
 
     // polymonomial approx
-    if (fabs(x) < 0.42) {
+    if (fabs(x) < 0.42)
+    {
         r = x * x;
         r = x * (((a3 * r + a2) * r + a1) * r + a0) / ((((b3 * r + b2) * r + b1) * r + b0) * r + 1.0);
         return r;
@@ -92,6 +95,7 @@ inline double invNormalCdf(const double p) {
 }
 
 //  turn a uniform vector into a gaussian vector
-inline void u2g(const vector<double>& u, vector<double>& g) {
+inline void u2g(const vector<double>& u, vector<double>& g)
+{
     transform(u.begin(), u.end(), g.begin(), invNormalCdf);
 }

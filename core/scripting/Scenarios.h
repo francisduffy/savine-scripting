@@ -20,7 +20,8 @@ As long as this comment is preserved at the top of the file
 using namespace std;
 
 template <class T>
-struct SimulData {
+struct SimulData
+{
     T spot;
     T numeraire;
 };

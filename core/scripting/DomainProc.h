@@ -44,7 +44,8 @@ using namespace std;
 
 */
 
-class DomainProcessor : public Visitor {
+class DomainProcessor : public Visitor
+{
     // Fuzzy?
     const bool myFuzzy;
 
@@ -55,7 +56,12 @@ class DomainProcessor : public Visitor {
     quickStack<Domain> myDomStack;
 
     // Stack of always true/false properties for conditions
-    enum CondProp { alwaysTrue, alwaysFalse, trueOrFalse };
+    enum CondProp
+    {
+        alwaysTrue,
+        alwaysFalse,
+        trueOrFalse
+    };
     quickStack<CondProp> myCondStack;
 
     // LHS variable being visited?
@@ -72,31 +78,36 @@ class DomainProcessor : public Visitor {
 
     // Binaries
 
-    void visitAdd(NodeAdd& node) override {
+    void visitAdd(NodeAdd& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack[1] + myDomStack[0];
         myDomStack.pop(2);
         myDomStack.push(move(res));
     }
-    void visitSubtract(NodeSubtract& node) override {
+    void visitSubtract(NodeSubtract& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack[1] - myDomStack[0];
         myDomStack.pop(2);
         myDomStack.push(move(res));
     }
-    void visitMult(NodeMult& node) override {
+    void visitMult(NodeMult& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack[1] * myDomStack[0];
         myDomStack.pop(2);
         myDomStack.push(move(res));
     }
-    void visitDiv(NodeDiv& node) override {
+    void visitDiv(NodeDiv& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack[1] / myDomStack[0];
         myDomStack.pop(2);
         myDomStack.push(move(res));
     }
-    void visitPow(NodePow& node) override {
+    void visitPow(NodePow& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack[1].applyFunc2<double (*)(const double, const double)>(
             pow, myDomStack[0], Interval(Bound::minusInfinity, Bound::plusInfinity));
@@ -106,46 +117,54 @@ class DomainProcessor : public Visitor {
 
     // Unaries
     void visitUplus(NodeUplus& node) override { visitArguments(node); }
-    void visitUminus(NodeUminus& node) override {
+    void visitUminus(NodeUminus& node) override
+    {
         visitArguments(node);
         myDomStack.top() = -myDomStack.top();
     }
 
     // Functions
-    void visitLog(NodeLog& node) override {
+    void visitLog(NodeLog& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack.top().applyFunc<double (*)(const double)>(
             log, Interval(Bound::minusInfinity, Bound::plusInfinity));
         myDomStack.pop();
         myDomStack.push(move(res));
     }
-    void visitSqrt(NodeSqrt& node) override {
+    void visitSqrt(NodeSqrt& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack.top().applyFunc<double (*)(const double)>(sqrt, Interval(0.0, Bound::plusInfinity));
         myDomStack.pop();
         myDomStack.push(move(res));
     }
-    void visitMax(NodeMax& node) override {
+    void visitMax(NodeMax& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack.top();
         myDomStack.pop();
-        for (size_t i = 1; i < node.arguments.size(); ++i) {
+        for (size_t i = 1; i < node.arguments.size(); ++i)
+        {
             res = res.dmax(myDomStack.top());
             myDomStack.pop();
         }
         myDomStack.push(move(res));
     }
-    void visitMin(NodeMin& node) override {
+    void visitMin(NodeMin& node) override
+    {
         visitArguments(node);
         Domain res = myDomStack.top();
         myDomStack.pop();
-        for (size_t i = 1; i < node.arguments.size(); ++i) {
+        for (size_t i = 1; i < node.arguments.size(); ++i)
+        {
             res = res.dmin(myDomStack.top());
             myDomStack.pop();
         }
         myDomStack.push(move(res));
     }
-    void visitSmooth(NodeSmooth& node) override {
+    void visitSmooth(NodeSmooth& node) override
+    {
         visitArguments(node);
 
         // Pop eps
@@ -171,31 +190,39 @@ class DomainProcessor : public Visitor {
 
     // Conditions
 
-    void visitEqual(NodeEqual& node) override {
+    void visitEqual(NodeEqual& node) override
+    {
         visitArguments(node);
 
         Domain& dom = myDomStack.top();
 
         // Always true / false?
-        if (!dom.canBeZero()) {
+        if (!dom.canBeZero())
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
 
             myCondStack.push(alwaysFalse);
-        } else if (!dom.canBeNonZero()) {
+        }
+        else if (!dom.canBeNonZero())
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             myCondStack.push(alwaysTrue);
-        } else {
+        }
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
             myCondStack.push(trueOrFalse);
 
-            if (myFuzzy) {
+            if (myFuzzy)
+            {
                 // Continuous or discrete?
                 node.myDiscrete = dom.zeroIsDiscrete();
 
                 // Discrete
-                if (node.myDiscrete) {
+                if (node.myDiscrete)
+                {
                     bool subDomRightOfZero = dom.smallestPosLb(node.myRb, true);
                     if (!subDomRightOfZero)
                         node.myRb = 0.5;
@@ -225,20 +252,26 @@ class DomainProcessor : public Visitor {
         myDomStack.pop();
     }
 
-    void visitNot(NodeNot& node) override {
+    void visitNot(NodeNot& node) override
+    {
         visitArguments(node);
         CondProp cp = myCondStack.top();
         myCondStack.pop();
 
-        if (cp == alwaysTrue) {
+        if (cp == alwaysTrue)
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
             myCondStack.push(alwaysFalse);
-        } else if (cp == alwaysFalse) {
+        }
+        else if (cp == alwaysFalse)
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             myCondStack.push(alwaysTrue);
-        } else {
+        }
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
             myCondStack.push(trueOrFalse);
         }
@@ -246,44 +279,56 @@ class DomainProcessor : public Visitor {
 
     // For visiting superior and supEqual
     template <bool strict, class NodeSup>
-    inline void visitSupT(NodeSup& node) {
+    inline void visitSupT(NodeSup& node)
+    {
         visitArguments(node);
 
         Domain& dom = myDomStack.top();
 
         // Always true / false?
-        if (!dom.canBePositive(strict)) {
+        if (!dom.canBePositive(strict))
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
             myCondStack.push(alwaysFalse);
-        } else if (!dom.canBeNegative(!strict)) {
+        }
+        else if (!dom.canBeNegative(!strict))
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             myCondStack.push(alwaysTrue);
         }
         // Can be true or false
-        else {
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
             myCondStack.push(trueOrFalse);
 
-            if (myFuzzy) {
+            if (myFuzzy)
+            {
                 // Continuous or discrete?
                 node.myDiscrete = !dom.canBeZero() || dom.zeroIsDiscrete();
 
                 // Fuzzy logic processing
-                if (node.myDiscrete) {
+                if (node.myDiscrete)
+                {
                     // Case 1: expr cannot be zero
-                    if (!dom.canBeZero()) {
+                    if (!dom.canBeZero())
+                    {
                         // we know we have subdomains on the left and on the right of 0
                         dom.smallestPosLb(node.myRb, true);
                         dom.biggestNegRb(node.myLb, true);
                     }
                     // Case 2: {0} is a singleton
-                    else {
-                        if (strict) {
+                    else
+                    {
+                        if (strict)
+                        {
                             node.myLb = 0.0;
                             dom.smallestPosLb(node.myRb, true);
-                        } else {
+                        }
+                        else
+                        {
                             node.myRb = 0.0;
                             dom.biggestNegRb(node.myLb, true);
                         }
@@ -314,49 +359,62 @@ class DomainProcessor : public Visitor {
 
     void visitSupEqual(NodeSupEqual& node) override { visitSupT<false>(node); }
 
-    void visitAnd(NodeAnd& node) override {
+    void visitAnd(NodeAnd& node) override
+    {
         visitArguments(node);
         CondProp cp1 = myCondStack.top();
         myCondStack.pop();
         CondProp cp2 = myCondStack.top();
         myCondStack.pop();
 
-        if (cp1 == alwaysTrue && cp2 == alwaysTrue) {
+        if (cp1 == alwaysTrue && cp2 == alwaysTrue)
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             myCondStack.push(alwaysTrue);
-        } else if (cp1 == alwaysFalse || cp2 == alwaysFalse) {
+        }
+        else if (cp1 == alwaysFalse || cp2 == alwaysFalse)
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
             myCondStack.push(alwaysFalse);
-        } else {
+        }
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
             myCondStack.push(trueOrFalse);
         }
     }
-    void visitOr(NodeOr& node) override {
+    void visitOr(NodeOr& node) override
+    {
         visitArguments(node);
         CondProp cp1 = myCondStack.top();
         myCondStack.pop();
         CondProp cp2 = myCondStack.top();
         myCondStack.pop();
 
-        if (cp1 == alwaysTrue || cp2 == alwaysTrue) {
+        if (cp1 == alwaysTrue || cp2 == alwaysTrue)
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             myCondStack.push(alwaysTrue);
-        } else if (cp1 == alwaysFalse && cp2 == alwaysFalse) {
+        }
+        else if (cp1 == alwaysFalse && cp2 == alwaysFalse)
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
             myCondStack.push(alwaysFalse);
-        } else {
+        }
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
             myCondStack.push(trueOrFalse);
         }
     }
 
     // Instructions
-    void visitIf(NodeIf& node) override {
+    void visitIf(NodeIf& node) override
+    {
         // Last "if true" statement index
         size_t lastTrueStat = node.firstElse == -1 ? node.arguments.size() - 1 : node.firstElse - 1;
 
@@ -367,20 +425,25 @@ class DomainProcessor : public Visitor {
         CondProp cp = myCondStack.top();
         myCondStack.pop();
 
-        if (cp == alwaysTrue) {
+        if (cp == alwaysTrue)
+        {
             node.myAlwaysTrue = true;
             node.myAlwaysFalse = false;
             // Visit "if true" statements
             for (size_t i = 1; i <= lastTrueStat; ++i)
                 node.arguments[i]->acceptVisitor(*this);
-        } else if (cp == alwaysFalse) {
+        }
+        else if (cp == alwaysFalse)
+        {
             node.myAlwaysTrue = false;
             node.myAlwaysFalse = true;
             // Visit "if false" statements, if any
             if (node.firstElse != -1)
                 for (size_t i = node.firstElse; i < node.arguments.size(); ++i)
                     node.arguments[i]->acceptVisitor(*this);
-        } else {
+        }
+        else
+        {
             node.myAlwaysTrue = node.myAlwaysFalse = false;
 
             // Record variable domain before if statements are executed
@@ -412,7 +475,8 @@ class DomainProcessor : public Visitor {
         }
     }
 
-    void visitAssign(NodeAssign& node) override {
+    void visitAssign(NodeAssign& node) override
+    {
         // Visit the LHS variable
         myLhsVar = true;
         node.arguments[0]->acceptVisitor(*this);
@@ -428,7 +492,8 @@ class DomainProcessor : public Visitor {
         myDomStack.pop();
     }
 
-    void visitPays(NodePays& node) override {
+    void visitPays(NodePays& node) override
+    {
         // Visit the LHS variable
         myLhsVar = true;
         node.arguments[0]->acceptVisitor(*this);
@@ -453,13 +518,15 @@ class DomainProcessor : public Visitor {
     }
 
     // Variables and constants
-    void visitVar(NodeVar& node) override {
+    void visitVar(NodeVar& node) override
+    {
         // LHS?
         if (myLhsVar) // Write
         {
             // Record address in myLhsVarAdr
             myLhsVarIdx = node.index;
-        } else // Read
+        }
+        else // Read
         {
             // Push domain onto the stack
             myDomStack.push(myVarDomains[node.index]);
@@ -469,7 +536,8 @@ class DomainProcessor : public Visitor {
     void visitConst(NodeConst& node) override { myDomStack.push(node.val); }
 
     // Scenario related
-    void visitSpot(NodeSpot& node) override {
+    void visitSpot(NodeSpot& node) override
+    {
         static const Domain realDom(Interval(Bound::minusInfinity, Bound::plusInfinity));
         myDomStack.push(realDom);
     }

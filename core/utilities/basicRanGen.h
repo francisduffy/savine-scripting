@@ -11,12 +11,14 @@
 #include <vector>
 using namespace std;
 
-struct randomgen_error : public runtime_error {
+struct randomgen_error : public runtime_error
+{
     randomgen_error(const char msg[]) : runtime_error(msg) {}
 };
 
 //  Base
-class RandomGen {
+class RandomGen
+{
   public:
     //  Initialise for a given dimension
     virtual void init(const size_t dim) = 0;
@@ -31,13 +33,15 @@ class RandomGen {
     virtual unique_ptr<RandomGen> clone() const = 0;
 
     // Skip ahead (for parallel Monte-Carlo)
-    virtual void skipAhead(const long skip) {
+    virtual void skipAhead(const long skip)
+    {
         throw randomgen_error("Concrete random generator cannot be used for parallel simulations");
     }
 };
 
 //  Basic C++11
-class BasicRanGen : public RandomGen {
+class BasicRanGen : public RandomGen
+{
     default_random_engine myEngine;
     normal_distribution<> myDist;
     size_t myDim;
@@ -45,18 +49,22 @@ class BasicRanGen : public RandomGen {
     vector<double> myNormVec;
 
   public:
-    BasicRanGen(const unsigned seed = 0) {
+    BasicRanGen(const unsigned seed = 0)
+    {
         myEngine = seed > 0 ? default_random_engine(seed) : default_random_engine();
         myDist = normal_distribution<>();
     }
 
-    void init(const size_t dim) override {
+    void init(const size_t dim) override
+    {
         myDim = dim;
         myNormVec.resize(dim);
     }
 
-    void genNextNormVec() override {
-        for (size_t i = 0; i < myDim; ++i) {
+    void genNextNormVec() override
+    {
+        for (size_t i = 0; i < myDim; ++i)
+        {
             myNormVec[i] = myDist(myEngine);
         }
     }

@@ -30,7 +30,8 @@ struct Node;
 using ExprTree = unique_ptr<Node>;
 
 // Base node
-struct Node {
+struct Node
+{
     vector<ExprTree> arguments;
 
     virtual ~Node() {}
@@ -43,19 +44,22 @@ struct Node {
 
 //  Make concrete node
 template <typename ConcreteNode, typename... Args>
-unique_ptr<ConcreteNode> make_node(Args&&... args) {
+unique_ptr<ConcreteNode> make_node(Args&&... args)
+{
     return unique_ptr<ConcreteNode>(new ConcreteNode(forward<Args>(args)...));
 }
 
 //  Same but return as pointer on base
 template <typename ConcreteNode, typename... Args>
-unique_ptr<Node> make_base_node(Args&&... args) {
+unique_ptr<Node> make_base_node(Args&&... args)
+{
     return unique_ptr<Node>(new ConcreteNode(forward<Args>(args)...));
 }
 
 // Build binary of the kind in the template parameter, and set its arguments to lhs and rhs trees
 template <class NodeType>
-ExprTree buildBinary(ExprTree& lhs, ExprTree& rhs) {
+ExprTree buildBinary(ExprTree& lhs, ExprTree& rhs)
+{
     auto top = make_base_node<NodeType>();
     top->arguments.resize(2);
     // Take ownership of lhs and rhs
@@ -67,7 +71,8 @@ ExprTree buildBinary(ExprTree& lhs, ExprTree& rhs) {
 
 // Overload that returns concrete node
 template <class NodeType>
-unique_ptr<NodeType> buildConcreteBinary(ExprTree& lhs, ExprTree& rhs) {
+unique_ptr<NodeType> buildConcreteBinary(ExprTree& lhs, ExprTree& rhs)
+{
     auto top = make_node<NodeType>();
     top->arguments.resize(2);
     // Take ownership of lhs and rhs
@@ -78,56 +83,66 @@ unique_ptr<NodeType> buildConcreteBinary(ExprTree& lhs, ExprTree& rhs) {
 }
 
 // Collection of statements
-struct NodeCollect : public Node {
+struct NodeCollect : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // True
-struct NodeTrue : public Node {
+struct NodeTrue : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // False
-struct NodeFalse : public Node {
+struct NodeFalse : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // Unary +/-
-struct NodeUplus : public Node {
+struct NodeUplus : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeUminus : public Node {
+struct NodeUminus : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // Math operators
-struct NodeAdd : public Node {
+struct NodeAdd : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeSubtract : public Node {
+struct NodeSubtract : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeMult : public Node {
+struct NodeMult : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeDiv : public Node {
+struct NodeDiv : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodePow : public Node {
+struct NodePow : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
@@ -140,29 +155,34 @@ struct NodeLog : public Node
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeSqrt : public Node {
+struct NodeSqrt : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeMax : public Node {
+struct NodeMax : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeMin : public Node {
+struct NodeMin : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // Functional if
-struct NodeSmooth : public Node {
+struct NodeSmooth : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // Comparators
-struct NodeEqual : public Node {
+struct NodeEqual : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
     // Fuzzying stuff
@@ -178,7 +198,8 @@ struct NodeEqual : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeNot : public Node {
+struct NodeNot : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
 
@@ -186,7 +207,8 @@ struct NodeNot : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeSuperior : public Node {
+struct NodeSuperior : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
 
@@ -203,7 +225,8 @@ struct NodeSuperior : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeSupEqual : public Node {
+struct NodeSupEqual : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
 
@@ -222,7 +245,8 @@ struct NodeSupEqual : public Node {
 
 // And/or
 
-struct NodeAnd : public Node {
+struct NodeAnd : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
 
@@ -230,7 +254,8 @@ struct NodeAnd : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeOr : public Node {
+struct NodeOr : public Node
+{
     bool myAlwaysTrue;
     bool myAlwaysFalse;
 
@@ -239,24 +264,28 @@ struct NodeOr : public Node {
 };
 
 // Assign, Pays
-struct NodeAssign : public Node {
+struct NodeAssign : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodePays : public Node {
+struct NodePays : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // Market access
-struct NodeSpot : public Node {
+struct NodeSpot : public Node
+{
     void acceptVisitor(Visitor& visitor) override;
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
 // If
-struct NodeIf : public Node {
+struct NodeIf : public Node
+{
     int firstElse;
     // For fuzzy eval: indices of variables affected in statements, including nested
     vector<unsigned> myAffectedVars;
@@ -268,7 +297,8 @@ struct NodeIf : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeConst : public Node {
+struct NodeConst : public Node
+{
     double val;
 
     NodeConst(const double val_) : val(val_) {}
@@ -277,7 +307,8 @@ struct NodeConst : public Node {
     void acceptVisitor(constVisitor& visitor) const override;
 };
 
-struct NodeVar : public Node {
+struct NodeVar : public Node
+{
     string name;
     unsigned index;
 

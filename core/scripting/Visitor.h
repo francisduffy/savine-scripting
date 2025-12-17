@@ -18,7 +18,8 @@ As long as this comment is preserved at the top of the file
 
 #include "Nodes.h"
 
-class Visitor {
+class Visitor
+{
   protected:
     // Protected constructor so the base class cannot be instantiated
     Visitor() {}
@@ -28,7 +29,8 @@ class Visitor {
 
   protected:
     // Default visit just visits arguments so as to ensure that the whole sub-tree is visited
-    virtual void visitArguments(Node& node) {
+    virtual void visitArguments(Node& node)
+    {
         for (auto& arg : node.arguments)
             arg->acceptVisitor(*this);
     }
@@ -67,7 +69,8 @@ class Visitor {
     virtual void visitVar(NodeVar& node) { visitArguments(node); }
 };
 
-class constVisitor {
+class constVisitor
+{
   protected:
     // Protected constructor so the base class cannot be instantiated
     constVisitor() {}
@@ -77,7 +80,8 @@ class constVisitor {
 
   protected:
     // Default visit just visits arguments so as to ensure that the whole sub-tree is visited
-    virtual void visitArguments(const Node& node) {
+    virtual void visitArguments(const Node& node)
+    {
         for (auto& arg : node.arguments)
             arg->acceptVisitor(*this);
     }

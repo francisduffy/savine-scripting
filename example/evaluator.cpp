@@ -29,7 +29,7 @@ void runEvaluator()
 
     size_t idx = 0;
     for (const auto& val : evaluator.varVals())
-        cout << "var[" << idx++ << "], " << varNames[idx-1] << " = " << val << endl;
+        cout << "var[" << idx++ << "], " << varNames[idx - 1] << " = " << val << endl;
 }
 
 int main(int argc, char* argv[])

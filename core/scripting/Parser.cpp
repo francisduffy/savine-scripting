@@ -18,7 +18,8 @@ As long as this comment is preserved at the top of the file
 #include <algorithm>
 #include <regex>
 
-vector<string> tokenize(const string& str) {
+vector<string> tokenize(const string& str)
+{
     // Regex matching tokens of interest
     static const regex r("[\\w.]+|[/-]|,|;|:|[\\(\\)\\+\\*\\^]|!=|>=|<=|[<>=]");
 
@@ -27,7 +28,8 @@ vector<string> tokenize(const string& str) {
     v.reserve(str.size());
 
     // Loop over matches
-    for (sregex_iterator it(str.begin(), str.end(), r), end; it != end; ++it) {
+    for (sregex_iterator it(str.begin(), str.end(), r), end; it != end; ++it)
+    {
         // Copy match into results
         v.push_back((*it)[0]);
         // Uppercase
@@ -39,13 +41,15 @@ vector<string> tokenize(const string& str) {
 }
 
 // Event = vector<Statement> = vector<ExprTree>
-Event parse(const string& eventString) {
+Event parse(const string& eventString)
+{
     Event e;
 
     auto tokens = tokenize(eventString);
 
     auto it = tokens.begin();
-    while (it != tokens.end()) {
+    while (it != tokens.end())
+    {
         e.push_back(Parser<decltype(it)>::parseStatement(it, tokens.end()));
     }
 

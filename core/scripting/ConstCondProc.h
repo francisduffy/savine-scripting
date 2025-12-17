@@ -25,13 +25,16 @@ As long as this comment is preserved at the top of the file
 // The always true/false if nodes are replaced by collections of statements to be evaluated
 // The always true/false conditions are replaced by true/false nodes
 
-class ConstCondProcessor : public Visitor {
+class ConstCondProcessor : public Visitor
+{
     // The (unique) pointer on the node currently being visited
     ExprTree* myCurrent;
 
     // Overriden default visitor sets myCurrent when visiting arguments
-    void visitArguments(Node& node) override {
-        for (auto& arg : node.arguments) {
+    void visitArguments(Node& node) override
+    {
+        for (auto& arg : node.arguments)
+        {
             myCurrent = &arg;
             arg->acceptVisitor(*this);
         }
@@ -41,7 +44,8 @@ class ConstCondProcessor : public Visitor {
     // This patricular visitor modifies the structure of the tree, hence it must be called only
     // with this method from the top of every tree, passing a ref on the unique_ptr holding
     // the top node of the tree
-    void processFromTop(unique_ptr<Node>& top) {
+    void processFromTop(unique_ptr<Node>& top)
+    {
         myCurrent = &top;
         top->acceptVisitor(*this);
     }
@@ -50,7 +54,8 @@ class ConstCondProcessor : public Visitor {
 
     // One visitor for all conditions
     template <class NodeCond>
-    inline void visitCondT(NodeCond& node) {
+    inline void visitCondT(NodeCond& node)
+    {
         // Always true ==> replace the tree by a True node
         if (node.myAlwaysTrue)
             myCurrent->reset(new NodeTrue());
@@ -73,16 +78,19 @@ class ConstCondProcessor : public Visitor {
     void visitOr(NodeOr& node) override { visitCondT(node); }
 
     // If
-    void visitIf(NodeIf& node) override {
+    void visitIf(NodeIf& node) override
+    {
         // Always true ==> replace the tree by the collection of "if true" statements
-        if (node.myAlwaysTrue) {
+        if (node.myAlwaysTrue)
+        {
             size_t lastTrueStat = node.firstElse == -1 ? node.arguments.size() - 1 : node.firstElse - 1;
 
             // Move arguments, destroy node
             vector<ExprTree> args = move(node.arguments);
             myCurrent->reset(new NodeCollect());
 
-            for (size_t i = 1; i <= lastTrueStat; ++i) {
+            for (size_t i = 1; i <= lastTrueStat; ++i)
+            {
                 (*myCurrent)->arguments.push_back(move(args[i]));
             }
 
@@ -90,15 +98,18 @@ class ConstCondProcessor : public Visitor {
         }
 
         // Always false ==> replace the tree by the collection of "else" statements
-        else if (node.myAlwaysFalse) {
+        else if (node.myAlwaysFalse)
+        {
             int firstElseStatement = node.firstElse;
 
             // Move arguments, destroy node
             vector<ExprTree> args = move(node.arguments);
             myCurrent->reset(new NodeCollect());
 
-            if (firstElseStatement != -1) {
-                for (size_t i = firstElseStatement; i < args.size(); ++i) {
+            if (firstElseStatement != -1)
+            {
+                for (size_t i = firstElseStatement; i < args.size(); ++i)
+                {
                     (*myCurrent)->arguments.push_back(move(args[i]));
                 }
             }

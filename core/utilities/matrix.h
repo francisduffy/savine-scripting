@@ -22,7 +22,8 @@ using namespace std;
 //  Simple matrix class that wraps a vector
 
 template <class T>
-class matrix {
+class matrix
+{
     size_t myRows;
     size_t myCols;
     vector<T> myVector;
@@ -34,7 +35,8 @@ class matrix {
 
     //  Copy, assign
     matrix(const matrix& rhs) : myRows(rhs.myRows), myCols(rhs.myCols), myVector(rhs.myVector) {}
-    matrix& operator=(const matrix& rhs) {
+    matrix& operator=(const matrix& rhs)
+    {
         if (this == &rhs)
             return *this;
         matrix<T> temp(rhs);
@@ -44,7 +46,8 @@ class matrix {
 
     //  Move, move assign
     matrix(matrix&& rhs) : myRows(rhs.myRows), myCols(rhs.myCols), myVector(move(rhs.myVector)) {}
-    matrix& operator=(matrix&& rhs) {
+    matrix& operator=(matrix&& rhs)
+    {
         if (this == &rhs)
             return *this;
         matrix<T> temp(move(rhs));
@@ -53,14 +56,16 @@ class matrix {
     }
 
     //  Swapper
-    void swap(matrix& rhs) {
+    void swap(matrix& rhs)
+    {
         myVector.swap(rhs.myVector);
         swap(myRows, rhs.myRows);
         swap(myCols, rhs.myCols);
     }
 
     //  Resizer
-    void resize(const size_t rows, const size_t cols) {
+    void resize(const size_t rows, const size_t cols)
+    {
         myRows = rows;
         myCols = cols;
         if (myVector.size() < rows * cols)

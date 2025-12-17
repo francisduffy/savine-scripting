@@ -20,15 +20,18 @@ As long as this comment is preserved at the top of the file
 #include "Visitor.h"
 #include <map>
 
-class VarIndexer : public Visitor {
+class VarIndexer : public Visitor
+{
     // State
     map<string, size_t> myVarMap;
 
   public:
     // Access vector of variable names v[index]=name after visit to all events
-    vector<string> getVarNames() const {
+    vector<string> getVarNames() const
+    {
         vector<string> v(myVarMap.size());
-        for (auto varMapIt = myVarMap.begin(); varMapIt != myVarMap.end(); ++varMapIt) {
+        for (auto varMapIt = myVarMap.begin(); varMapIt != myVarMap.end(); ++varMapIt)
+        {
             v[varMapIt->second] = varMapIt->first;
         }
 
@@ -37,7 +40,8 @@ class VarIndexer : public Visitor {
     }
 
     // Variable indexer: build map of names to indices and write indices on variable nodes
-    void visitVar(NodeVar& node) override {
+    void visitVar(NodeVar& node) override
+    {
         auto varIt = myVarMap.find(node.name);
         if (varIt == myVarMap.end())
             node.index = myVarMap[node.name] = myVarMap.size();

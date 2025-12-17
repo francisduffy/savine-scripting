@@ -22,7 +22,8 @@ As long as this comment is preserved at the top of the file
 using namespace std;
 
 template <class T, size_t DefaultSize = 64>
-class quickStack {
+class quickStack
+{
 
   private:
     T* myData;
@@ -32,7 +33,8 @@ class quickStack {
   public:
     // Constructor, destructor
 
-    quickStack(const size_t chunk_size = DefaultSize) {
+    quickStack(const size_t chunk_size = DefaultSize)
+    {
         mySize = chunk_size;
         if (mySize)
             myData = new T[mySize];
@@ -41,14 +43,16 @@ class quickStack {
         mySp = 0;
     }
 
-    virtual ~quickStack() {
+    virtual ~quickStack()
+    {
         if (myData)
             delete[] myData;
     }
 
     // Copier, mover
 
-    quickStack(const quickStack& rhs) {
+    quickStack(const quickStack& rhs)
+    {
         mySize = rhs.mySize;
         mySp = rhs.mySp;
         if (mySize)
@@ -59,10 +63,12 @@ class quickStack {
             copy(rhs.myData, rhs.myData + mySp, myData);
     }
 
-    quickStack& operator=(const quickStack& rhs) {
+    quickStack& operator=(const quickStack& rhs)
+    {
         if (this == &rhs)
             return *this;
-        if (mySize < rhs.mySize) {
+        if (mySize < rhs.mySize)
+        {
             if (myData)
                 delete[] myData;
             if (rhs.mySize)
@@ -78,7 +84,8 @@ class quickStack {
         return *this;
     }
 
-    quickStack(quickStack&& rhs) {
+    quickStack(quickStack&& rhs)
+    {
         mySize = rhs.mySize;
         mySp = rhs.mySp;
         myData = rhs.myData;
@@ -86,7 +93,8 @@ class quickStack {
         rhs.mySize = rhs.mySp = 0;
     }
 
-    quickStack& operator=(quickStack&& rhs) {
+    quickStack& operator=(quickStack&& rhs)
+    {
         if (this == &rhs)
             return *this;
         if (myData)
@@ -112,10 +120,12 @@ class quickStack {
     inline const_iterator end() const { return reverse_iterator<const T*>(myData); }
 
     template <typename T2>
-    void push(T2&& value) {
+    void push(T2&& value)
+    {
         myData[mySp] = forward<T2>(value);
         ++mySp;
-        if (mySp >= mySize) {
+        if (mySp >= mySize)
+        {
             T* newData = new T[mySize << 1];
 
 #ifdef _MSC_VER
@@ -139,7 +149,8 @@ class quickStack {
 
     inline const T& operator[](const size_t i) const { return myData[mySp - 1 - i]; }
 
-    inline T topAndPop() {
+    inline T topAndPop()
+    {
         --mySp;
         return move(myData[mySp]);
     }
@@ -150,7 +161,8 @@ class quickStack {
 
     void reset() { mySp = 0; }
 
-    void clear() {
+    void clear()
+    {
         if (myData)
             delete[] myData;
         myData = nullptr;
